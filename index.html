@@ -18,20 +18,20 @@ family=Economica:wght@400
 display=swap" rel="stylesheet">
 <style>
 :root{--bg:#1f1f24;--bg2:#2a2a31;--bg3:#3a3a44;--txt:#f2f2f2;--muted:#a8a8b3;
---rose:#ff5fa2;--jaune:#ffd23f;--orange:#ff8c42}
+--rose:#c2185b;--jaune:#ffd23f;--orange:#ff8c42}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
-h1{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:45px;margin:0 auto 0 0;color:var(--pk);letter-spacing:1.5px;line-height:1}
-header{background:var(--dark);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:6px solid;border-image:linear-gradient(90deg,var(--pink),var(--orange),var(--gate)) 1}
+h1{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:45px;margin:0 auto 0 0;color:var(--rose);letter-spacing:1.5px;line-height:1}
+header{background:var(--dark);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:6px solid;border-image:linear-gradient(90deg,var(--rose),var(--orange),var(--jaune)) 1}
 
-header h1{font-family:'Bebas Neue',sans-serif;font-weight:400;margin:0;line-height:1.1;color:var(--pk);letter-spacing:1.5px;line-height:1}
+header h1{font-family:'Bebas Neue',sans-serif;font-weight:400;margin:0;line-height:1.1;color:var(--rose);letter-spacing:1.5px;line-height:1}
 
 #userbox{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted)}
 main{max-width:860px;margin:20px auto;padding:0 14px}
 footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
 .card{background:var(--bg2);border-radius:12px;padding:18px;margin-bottom:16px;border-left:5px solid var(--rose)}
 .card.jaune{border-left-color:var(--jaune)}
-h2{margin:0 0 10px;color:var(--orange)}
+h2{margin:0 0 10px;color:var(--jaune)}
 label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--muted)}
 input,textarea,select{width:100%;padding:9px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--txt);font:inherit}
 button{background:var(--rose);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer;font-weight:600}
@@ -300,7 +300,7 @@ async function deconnexion(){ await Auth.signOut(); goHome(); }
 /* ================= Connexion ================= */
 let authMode='in';
 function vueConnexion(){
-  app.innerHTML = `<div class="card"><h2>${authMode==='in'?'Connexion':'Créer un compte'}</h2>
+  app.innerHTML = `<div class="card"><h2>${authMode==='in'?'CONNEXION':'Créer un compte'}</h2>
     <p class="muted">Pour <b>créer</b> des sondages. Les invités votent sans compte.</p>
     ${authMode==='up'?'<label>Nom</label><input id="aNom">':''}
     <label>Courriel</label><input id="aEmail" type="email" autocomplete="email">
