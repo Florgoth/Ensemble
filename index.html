@@ -132,16 +132,20 @@ async function api(path, {method='GET', body=null, anon=false} = {}){
   const h = {'Content-Type':'application/json'};
   if(!anon && Auth.user){
     h['Authorization'] = 'Bearer ' + await Auth.getToken();
-  } else {
-    h['Authorization'] = 'Bearer ' + CONFIG.ANON_KEY;
+  } else if(!anon){
+    const r = await fetch(CONFIG.AUTH_URL + '/sign-in/anonymous', {method:'POST', credentials:'include'});
+    const d = await r.json();
+    h['Authorization'] = 'Bearer ' + (d.token || '');
   }
-  if(method!=='GET') h['Prefer'] = 'return=representation';
-  const r = await fetch(CONFIG.DATA_API + path, {
-    method, headers: h,
-    body: body ? JSON.stringify(body) : undefined
+  const r = await fetch(CONFIG.API_URL + path, {
+    method,
+    headers:h,
+    ...(body===null ? {} : {body:JSON.stringify(body)})
   });
-  const txt = await r.text(); let data=null; try{ data=JSON.parse(txt); }catch{}
-  if(!r.ok) throw new Error((data&&(data.message||data.hint))||('Erreur API '+r.status));
+  const txt = await r.text();
+  let data = null;
+  try{ data = JSON.parse(txt); }catch{}
+  if(!r.ok) throw new Error((data&&(data.message||data.details||data.hint||data.error))||('Erreur '+r.status));
   return data;
 }
 const rpc = (fn,args,anon) => api('/rpc/'+fn,{method:'POST',body:args,anon});
