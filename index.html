@@ -130,18 +130,17 @@ const Auth = {
    ========================================================= */
 async function api(path, {method='GET', body=null, anon=false} = {}){
   const h = {'Content-Type':'application/json'};
-  if(!anon && Auth.user){
+  if(anon){
+    h['Authorization'] = 'Bearer ' + CONFIG.ANON_KEY;
+  } else {
     h['Authorization'] = 'Bearer ' + await Auth.getToken();
-  } else if(!anon){
-    const r = await fetch(CONFIG.AUTH_URL + '/sign-in/anonymous', {method:'POST', credentials:'include'});
-    const d = await r.json();
-    h['Authorization'] = 'Bearer ' + (d.token || '');
   }
-  const r = await fetch(CONFIG.API_URL + path, {
+  const r = await fetch(CONFIG.DATA_API_URL + path, {
     method,
     headers:h,
     ...(body===null ? {} : {body:JSON.stringify(body)})
   });
+  
   const txt = await r.text();
   let data = null;
   try{ data = JSON.parse(txt); }catch{}
