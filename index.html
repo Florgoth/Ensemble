@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENSEMBLE – Planifiez sans publicité, gratuit pour toujours</title>
+<style>
+  :root{
+    --bg:#2b2b30; --bg2:#35353c; --bg3:#41414a;
+    --rose:#ff5fa2; --jaune:#ffd23f; --orange:#ff8c42;
+    --texte:#f4f4f6; --muted:#a8a8b3; --ok:#7bd88f; --non:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--texte);line-height:1.5}
+  header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid;border-image:linear-gradient(90deg,var(--rose),var(--jaune),var(--orange)) 1;background:var(--bg2)}
+  header h1{margin:0;font-size:1.5rem;background:linear-gradient(90deg,var(--rose),var(--jaune),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent;cursor:pointer}
+  header span{color:var(--muted);font-size:.85rem}
+  main{max-width:960px;margin:0 auto;padding:24px 16px 60px}
+  .card{background:var(--bg2);border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,.35);border-top:3px solid var(--rose)}
+  .card.jaune{border-top-color:var(--jaune)} .card.orange{border-top-color:var(--orange)}
+  h2{margin:0 0 14px;color:var(--jaune)} h3{color:var(--orange);margin:18px 0 8px}
+  label{display:block;font-weight:600;margin:14px 0 6px;color:var(--rose)}
+  input,textarea,select{width:100%;padding:11px 12px;border-radius:9px;border:2px solid var(--bg3);background:var(--bg);color:var(--texte);font-size:1rem;font-family:inherit}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--jaune)}
+  button,.btn{cursor:pointer;border:none;border-radius:9px;padding:11px 18px;font-size:.95rem;font-weight:700;color:#2b2b30;background:linear-gradient(90deg,var(--rose),var(--orange));transition:transform .12s,filter .12s;text-decoration:none;display:inline-block}
+  button:hover,.btn:hover{transform:translateY(-1px);filter:brightness(1.1)}
+  button.sec{background:var(--bg3);color:var(--texte)} button.jaune{background:var(--jaune)}
+  button.danger{background:transparent;color:var(--non);border:2px solid var(--non);padding:6px 10px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .row>*{flex:1;min-width:140px} .row>button{flex:0 0 auto}
+  .tabs{display:flex;gap:8px;margin-bottom:14px}
+  .tabs button{background:var(--bg3);color:var(--texte)} .tabs button.on{background:var(--jaune);color:#2b2b30}
+  .opt{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+  .opt input{flex:1}
+  .tag{display:inline-block;padding:3px 10px;border-radius:20px;background:var(--bg3);margin:3px;font-size:.85rem}
+  .tag b{color:var(--rose);cursor:pointer;margin-left:6px}
+  .muted{color:var(--muted);font-size:.9rem}
+  .hidden{display:none}
+  table{border-collapse:collapse;width:100%;font-size:.95rem}
+  th,td{padding:10px;text-align:center;border-bottom:1px solid var(--bg3)}
+  th{background:var(--bg3);color:var(--jaune)} td:first-child,th:first-child{text-align:left;font-weight:600}
+  td.oui{background:rgba(123,216,143,.22);color:var(--ok)} td.peut{background:rgba(255,210,63,.22);color:var(--jaune)} td.non{background:rgba(255,107,107,.18);color:var(--non)} td.att{color:var(--muted)}
+  tr.total td{font-weight:800;border-top:3px solid var(--orange)} td.best,th.best{outline:3px solid var(--rose);outline-offset:-3px}
+  .choix{display:grid;gap:10px}
+  .choix .ligne{background:var(--bg);border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .choix .btns{display:flex;gap:6px}
+  .choix .btns button{background:var(--bg3);color:var(--texte);padding:8px 14px}
+  .choix .btns button.sel.oui{background:var(--ok);color:#222} .choix .btns button.sel.peut{background:var(--jaune);color:#222} .choix .btns button.sel.non{background:var(--non);color:#222}
+  .bar{height:10px;border-radius:6px;background:var(--bg3);overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--orange))}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--jaune);color:#222;padding:12px 20px;border-radius:10px;font-weight:700;z-index:99}
+  .linkbox{background:var(--bg);padding:10px;border-radius:8px;word-break:break-all;font-size:.8rem;color:var(--muted);margin:8px 0}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
+  @media print{
+    body{background:#fff;color:#000} header,.noprint,footer{display:none!important}
+    .card{box-shadow:none;border:1px solid #999;background:#fff} h2,h3,th{color:#000} th{background:#eee}
+    td.oui{background:#cfeccf;color:#000} td.peut{background:#fff3b0;color:#000} td.non{background:#f5c6c6;color:#000}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1 onclick="location.href=location.pathname">📅 ENSEMBLE</h1>
+  <span>Gratuit pour toujours · Sans pub · Sur invitation</span>
+</header>
+<main id="app"></main>
+<footer>Vos données restent dans votre navigateur et dans les liens partagés. Aucun serveur, aucun compte, aucun suivi.</footer>
+
+<script>
+/* ---------- Utilitaires ---------- */
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => {
+  const map = {'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'};
+  return String(s ?? '').replace(/[&<>"']/g, c => map[c]);
+};
+const uid = function(){ return Math.random().toString(36).slice(2,10); };
+const enc = o => btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const dec = s => { s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='='; return JSON.parse(decodeURIComponent(escape(atob(s)))); };
+const base = () => location.origin + location.pathname;
+const store = {
+  all: () => JSON.parse(localStorage.getItem('sondages')||'{}'),
+  save: s => { const a=store.all(); a[s.id]=s; localStorage.setItem('sondages',JSON.stringify(a)); },
+  get: id => store.all()[id],
+  del: id => { const a=store.all(); delete a[id]; localStorage.setItem('sondages',JSON.stringify(a)); }
+};
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+function copier(txt){ navigator.clipboard.writeText(txt).then(()=>toast('Lien copié ✔'),()=>prompt('Copiez ce lien :',txt)); }
+const VAL = {oui:'✔ Oui', peut:'(✔) Peut-être', non:'✘ Non'};
+
+/* ---------- Routage ---------- */
+function route(){
+  const p = new URLSearchParams(location.search);
+  if(p.get('r')) return vueReponse(p.get('r'));           // lien invité
+  if(p.get('a')) return importerReponse(p.get('a'));      // réponse reçue par le créateur
+  if(p.get('s')) return vueResultats(p.get('s'));
+  vueAccueil();
+}
+
+/* ---------- Accueil + création ---------- */
+let mode='dates', invites=[];
+function vueAccueil(){
+  const liste = Object.values(store.all());
+  app.innerHTML = `
+  <div class="card">
+    <h2>Créer un sondage</h2>
+    <label>Titre</label><input id="titre" placeholder="Ex. : Souper d'équipe">
+    <label>Description (facultatif)</label><textarea id="desc" rows="2" placeholder="Lieu, durée, détails…"></textarea>
+    <label>Votre nom</label><input id="auteur" placeholder="Votre nom">
+    <label>Votre courriel (pour recevoir les réponses)</label><input id="courriel" type="email" placeholder="vous@exemple.com">
+    <label>Type d'options</label>
+    <div class="tabs">
+      <button type="button" id="mDates" onclick="setMode('dates')">📆 Dates / heures</button>
+      <button type="button" id="mTexte" onclick="setMode('texte')">📝 Choix libres</button>
+    </div>
+    <div id="options"></div>
+    <button type="button" class="sec" onclick="addOpt()">+ Ajouter une option</button>
+    <label>Invités (un courriel à la fois — seuls eux pourront répondre)</label>
+    <div class="row"><input id="invNew" type="email" placeholder="invite@exemple.com" onkeydown="if(event.key==='Enter'){event.preventDefault();addInv()}">
+    <button type="button" class="jaune" onclick="addInv()">Ajouter</button></div>
+    <div id="invList" style="margin-top:8px"></div>
+    <p class="muted">Astuce : vous pouvez coller plusieurs courriels séparés par des virgules.</p>
+    <button type="button" onclick="creer()" style="margin-top:10px">Créer le sondage ➜</button>
+  </div>
+  ${liste.length?`<div class="card jaune"><h2>Mes sondages</h2>${liste.map(s=>`
+    <div class="row" style="padding:8px 0;border-bottom:1px solid var(--bg3)">
+      <div><b>${esc(s.titre)}</b><div class="muted">${s.invites.length} invité(s) · ${Object.keys(s.reponses).length} réponse(s)</div></div>
+      <button class="jaune" onclick="location.search='?s=${s.id}'">Ouvrir</button>
+      <button class="danger" onclick="supprimer('${s.id}')">Supprimer</button>
+    </div>`).join('')}</div>`:''}`;
+  setMode(mode,true);
+  renderInv();
+}
+function setMode(m,init){
+  mode=m; $('#mDates').classList.toggle('on',m==='dates'); $('#mTexte').classList.toggle('on',m==='texte');
+  $('#options').innerHTML=''; addOpt(); addOpt();
+}
+function addOpt(){
+  const d=document.createElement('div'); d.className='opt';
+  d.innerHTML = (mode==='dates'?'<input type="datetime-local" class="o">':'<input type="text" class="o" placeholder="Option">')+'<button type="button" class="danger" onclick="this.parentNode.remove()">✕</button>';
+  $('#options').appendChild(d);
+}
+function addInv(){
+  const v=$('#invNew').value.split(/[,;\s]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+  for(const e of v){
+    if(!/^\S+@\S+\.\S+$/.test(e)){toast('Courriel invalide : '+e);continue;}
+    if(!invites.includes(e)) invites.push(e);
+  }
+  $('#invNew').value=''; renderInv();
+}
+function renderInv(){
+  $('#invList').innerHTML = invites.map((e,i)=>`<span class="tag">${esc(e)}<b onclick="invites.splice(${i},1);renderInv()">✕</b></span>`).join('')||'<span class="muted">Aucun invité pour l\'instant.</span>';
+}
+function creer(){
+  const titre=$('#titre').value.trim(), auteur=$('#auteur').value.trim(), courriel=$('#courriel').value.trim();
+  const options=[...document.querySelectorAll('.o')].map(i=>i.value.trim()).filter(Boolean);
+  if($('#invNew').value.trim()) addInv();
+  if(!titre||!auteur||!/^\S+@\S+\.\S+$/.test(courriel)) return toast('Titre, nom et courriel valides requis');
+  if(options.length<2) return toast('Ajoutez au moins 2 options');
+  if(!invites.length) return toast('Ajoutez au moins un invité');
+  const s={id:uid(),titre,desc:$('#desc').value.trim(),auteur,courriel,type:mode,options,invites:[...invites],reponses:{},cree:Date.now()};
+  store.save(s); invites=[];
+  location.search='?s='+s.id;
+}
+function supprimer(id){ if(confirm('Supprimer ce sondage ?')){store.del(id);vueAccueil();} }
+
+/* ---------- Liens ---------- */
+function sondagePublic(s){ return {id:s.id,t:s.titre,d:s.desc,a:s.auteur,c:s.courriel,y:s.type,o:s.options}; }
+function lienInvite(s,email){ return base()+'?r='+enc({...sondagePublic(s),e:email}); }
+function libelleOpt(s,o){
+  if(s.type!=='dates') return o;
+  const d=new Date(o); return isNaN(d)?o:d.toLocaleString('fr-CA',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function envoyerInvitation(id,email){
+  const s=store.get(id);
+  const sujet=`Invitation : ${s.titre}`;
+  const corps=`Bonjour,\n\n${s.auteur} vous invite à répondre au sondage « ${s.titre} ».\n${s.desc?'\n'+s.desc+'\n':''}\nRépondez en un clic (lien personnel, ne le transférez pas) :\n${lienInvite(s,email)}\n\nMerci !`;
+  location.href=`mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
+}
+function envoyerATous(id){
+  const s=store.get(id);
+  if(!confirm(`Ouvrir ${s.invites.length} courriel(s) d'invitation, un à la fois ?`)) return;
+  s.invites.forEach((e,i)=>setTimeout(()=>envoyerInvitation(id,e),i*1200));
+}
+
+/* ---------- Vue invité ---------- */
+let choix={};
+function vueReponse(r){
+  let s; try{ s=dec(r); }catch(e){ app.innerHTML='<div class="card"><h2>Lien invalide</h2></div>'; return; }
+  choix={};
+  app.innerHTML=`<div class="card">
+    <h2>${esc(s.t)}</h2>
+    <p class="muted">Organisé par ${esc(s.a)}</p>
+    ${s.d?`<p>${esc(s.d)}</p>`:''}
+    <label>Votre nom</label><input id="rNom" placeholder="Votre nom">
+    <h3>Vos disponibilités</h3>
+    <div class="choix">${s.o.map((o,i)=>`
+      <div class="ligne"><span>${esc(libelleOpt({type:s.y},o))}</span>
+      <div class="btns" data-i="${i}">
+        <button type="button" data-v="oui">✔ Oui</button><button type="button" data-v="peut">(✔) Peut-être</button><button type="button" data-v="non">✘ Non</button>
+      </div></div>`).join('')}</div>
+    <button style="margin-top:18px" onclick="envoyerReponse('${r}')">Envoyer ma réponse ➜</button>
+    <p class="muted">Un courriel sera préparé pour ${esc(s.a)} avec vos choix. Il suffit de l'envoyer.</p>
+  </div>`;
+  document.querySelectorAll('.btns button').forEach(b=>b.onclick=()=>{
+    const i=b.parentNode.dataset.i; choix[i]=b.dataset.v;
+    b.parentNode.querySelectorAll('button').forEach(x=>x.className='');
+    b.className='sel '+b.dataset.v;
+  });
+}
+function envoyerReponse(r){
+  const s=dec(r), nom=$('#rNom').value.trim();
+  if(!nom) return toast('Entrez votre nom');
+  if(Object.keys(choix).length<s.o.length) return toast('Répondez à chaque option');
+  const rep={s:s.id,e:s.e,n:nom,v:s.o.map((_,i)=>choix[i])};
+  const lien=base()+'?a='+enc(rep);
+  const corps=`Bonjour ${s.a},\n\nMa réponse au sondage « ${s.t} » :\n\n`+s.o.map((o,i)=>`• ${libelleOpt({type:s.y},o)} : ${VAL[choix[i]]}`).join('\n')+`\n\nPour l'ajouter automatiquement à vos résultats, cliquez ici :\n${lien}\n\n— ${nom}`;
+  location.href=`mailto:${encodeURIComponent(s.c)}?subject=${encodeURIComponent('Réponse : '+s.t)}&body=${encodeURIComponent(corps)}`;
+  toast('Courriel prêt à envoyer ✔');
+}
+
+/* ---------- Import d'une réponse (créateur) ---------- */
+function importerReponse(a){
+  let rep; try{ rep=dec(a); }catch(e){ app.innerHTML='<div class="card"><h2>Lien invalide</h2></div>'; return; }
+  const s=store.get(rep.s);
+  if(!s){ app.innerHTML='<div class="card"><h2>Sondage introuvable</h2><p>Ouvrez ce lien dans le navigateur où vous avez créé le sondage.</p></div>'; return; }
+  if(!s.invites.includes(rep.e)){ app.innerHTML='<div class="card"><h2>Invité non autorisé</h2></div>'; return; }
+  s.reponses[rep.e]={nom:rep.n,v:rep.v,date:Date.now()};
+  store.save(s);
+  location.replace(base()+'?s='+s.id);
+}
+
+/* ---------- Résultats ---------- */
+function stats(s){
+  return s.options.map((_,i)=>{
+    let oui=0,peut=0,non=0;
+    Object.values(s.reponses).forEach(r=>{ const v=r.v[i]; if(v==='oui')oui++; else if(v==='peut')peut++; else if(v==='non')non++; });
+    return {oui,peut,non,score:oui*2+peut};
+  });
+}
+function vueResultats(id){
+  const s=store.get(id);
+  if(!s){ app.innerHTML='<div class="card"><h2>Sondage introuvable</h2><p>Ce sondage est stocké dans le navigateur du créateur.</p><button onclick="location.href=location.pathname">Accueil</button></div>'; return; }
+  const st=stats(s), max=Math.max(...st.map(x=>x.score)), nbRep=Object.keys(s.reponses).length;
+  const best=st.map((x,i)=>nbRep&&x.score===max&&max>0?i:-1);
+  app.innerHTML=`
+  <div class="card">
+    <h2>${esc(s.titre)}</h2>
+    <p class="muted">${esc(s.desc)}</p>
+    <p><b style="color:var(--rose)">${nbRep}</b> réponse(s) sur <b style="color:var(--orange)">${s.invites.length}</b> invité(s)</p>
+    <div class="bar"><i style="width:${s.invites.length?nbRep/s.invites.length*100:0}%"></i></div>
+    <div class="row noprint" style="margin-top:16px">
+      <button onclick="envoyerATous('${s.id}')">✉ Inviter tout le monde</button>
+      <button class="jaune" onclick="partager('${s.id}')">🔗 Partager</button>
+      <button class="sec" onclick="window.print()">🖨 Imprimer</button>
+      <button class="sec" onclick="exportCSV('${s.id}')">⬇ Exporter CSV</button>
+    </div>
+  </div>
+
+  <div class="card jaune">
+    <h2>Tableau des réponses</h2>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Participant</th>${s.options.map((o,i)=>`<th class="${best.includes(i)&&best[i]===i?'best':''}">${esc(libelleOpt(s,o))}</th>`).join('')}</tr>
+      ${s.invites.map(e=>{ const r=s.reponses[e]; return `<tr>
+        <td>${r?esc(r.nom):'<span class="muted">'+esc(e)+'</span>'}</td>
+        ${s.options.map((_,i)=>{ const v=r&&r.v[i]; return `<td class="${v||'att'}">${v?VAL[v]:'⏳'}</td>`; }).join('')}
+      </tr>`; }).join('')}
+      <tr class="total"><td>Total (✔ / (✔) / ✘)</td>${st.map((x,i)=>`<td class="${best[i]===i?'best':''}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}</tr>
+    </table></div>
+    ${max>0&&nbRep?`<p style="margin-top:14px">🏆 Meilleure option : <b style="color:var(--rose)">${best.map((b,i)=>b===i?esc(libelleOpt(s,s.options[i])):'').filter(Boolean).join(' · ')}</b></p>`:''}
+  </div>
+
+  <div class="card orange noprint">
+    <h2>Invités</h2>
+    ${s.invites.map(e=>`<div class="row" style="padding:8px 0;border-bottom:1px solid var(--bg3)">
+      <div>${esc(e)} ${s.reponses[e]?'<span class="tag" style="color:var(--ok)">a répondu</span>':'<span class="tag">en attente</span>'}</div>
+      <button class="sec" onclick="envoyerInvitation('${s.id}','${esc(e)}')">${s.reponses[e]?'Renvoyer':'Inviter / Relancer'}</button>
+      <button class="sec" onclick="copier(lienInvite(store.get('${s.id}'),'${esc(e)}'))">Copier le lien</button>
+    </div>`).join('')}
+  </div>
+  <div class="noprint"><button class="sec" onclick="location.href=location.pathname">← Retour</button></div>`;
+}
+function partager(id){
+  const s=store.get(id);
+  const url=base()+'?s='+id;
+  const txt=`Résultats du sondage « ${s.titre} » :\n`+s.options.map((o,i)=>{const x=stats(s)[i];return `• ${libelleOpt(s,o)} : ${x.oui} oui, ${x.peut} peut-être, ${x.non} non`;}).join('\n');
+  if(navigator.share) navigator.share({title:s.titre,text:txt}).catch(()=>{});
+  else{ copier(txt); }
+}
+function exportCSV(id){
+  const s=store.get(id), q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+  const lignes=[[ 'Participant','Courriel',...s.options.map(o=>libelleOpt(s,o)) ]];
+  s.invites.forEach(e=>{ const r=s.reponses[e]; lignes.push([r?r.nom:'',e,...s.options.map((_,i)=>r?({oui:'Oui',peut:'Peut-être',non:'Non'}[r.v[i]]||''):'')]); });
+  const st=stats(s);
+  lignes.push(['Total Oui','',...st.map(x=>x.oui)],['Total Peut-être','',...st.map(x=>x.peut)],['Total Non','',...st.map(x=>x.non)]);
+  const csv='\ufeff'+lignes.map(l=>l.map(q).join(',')).join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=s.titre.replace(/\W+/g,'_')+'.csv'; a.click();
+}
+
+route();
+</script>
+</body>
+</html>
