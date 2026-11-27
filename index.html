@@ -297,6 +297,7 @@ async function vueAccueil(){
     </select>
     <label>Options</label><div id="opts"></div>
     <div class="row" style="margin-top:10px"><button class="sec" onclick="ajouterOpt()">+ Option</button>
+
     <button id="btnCreer" onclick="creer()">Créer le sondage</button></div>
   </div>
   <div class="card jaune" id="mesSondages"><p class="muted">Chargement…</p></div>`;
@@ -323,26 +324,35 @@ function ajouterOpt(){
   $('#opts').appendChild(i);
 }
 async function creer(){
-  const titre=$('#titre').value.trim(), auteur=$('#auteur').value.trim(), courriel=$('#courriel').value.trim();
-  const mot=$('#mot').value.trim();
-  const options=[...document.querySelectorAll('.opt')].map(x=>x.value.trim()).filter(Boolean);
-  if(!titre||!auteur||!courriel) return toast('Titre, nom et courriel requis',true);
-  if(mot.length<3) return toast('Mot magique : 3 caractères minimum',true);
-  if($('#motLecture').value.trim().length<3) return toast('Mot de lecture : 3 caractères minimum',true);
-  if(options.length<2) return toast('Au moins 2 options',true);
-  const btn=$('#btnCreer'); btn.disabled=true;
+  const val = id => {
+    const el = document.getElementById(id);
+    if(!el) throw new Error('Champ introuvable dans la page : #'+id);
+    return el.value.trim();
+  };
   try{
-    const res = await rpc('create_poll',{
-  p_title:titre, p_description:$('#desc').value.trim(), p_kind:mode,
-  p_creator_name:auteur, p_creator_email:courriel,
-  p_options:options,
-  p_magic_word:$('#motMagique').value.trim(),
-  p_read_word:$('#motLecture').value.trim()
-  
-});
-    location.search='?p='+res.id;
-  }catch(e){ toast(e.message,true); btn.disabled=false; }
+    const titre=val('titre'), auteur=val('auteur'), courriel=val('courriel');
+    const magique=val('motMagique'), lecture=val('motLecture');
+    const options=[...document.querySelectorAll('#options .opt input')]
+      .map(i=>i.value.trim()).filter(Boolean);
+
+    if(!titre||!auteur||!courriel) return toast('Titre, nom et courriel requis',true);
+    if(options.length<2) return toast('Au moins 2 options',true);
+    if(magique.length<3) return toast('Mot magique : 3 caractères minimum',true);
+    if(lecture.length<3) return toast('Mot de lecture : 3 caractères minimum',true);
+
+    const btn=document.getElementById('btnCreer'); btn.disabled=true;
+    try{
+      const res = await rpc('create_poll',{
+        p_title:titre, p_description:val('desc'), p_kind:mode,
+        p_creator_name:auteur, p_creator_email:courriel,
+        p_options:options,
+        p_magic_word:magique, p_read_word:lecture
+      });
+      location.search='?p='+res.id;
+    }catch(e){ toast(e.message,true); btn.disabled=false; }
+  }catch(e){ toast(e.message,true); }
 }
+ 
 async function supprimer(id){
   if(!confirm('Supprimer ce sondage et toutes ses réponses ?')) return;
   try{ await api('/polls?id=eq.'+id,{method:'DELETE'}); vueAccueil(); }catch(e){ toast(e.message,true); }
