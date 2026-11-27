@@ -36,10 +36,12 @@ label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--muted)}
 input,textarea,select{width:100%;padding:9px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--txt);font:inherit}
 button{background:var(--rose);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer;font-weight:600}
 button.jaune{background:var(--jaune);color:#222}
-button.sec{background:var(--bg3);color:var(--txt)}
+button.sec{background:var(--bg3);color:var(--bg)}
 button:disabled{opacity:.5}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
+.boutons-duo{display:flex;gap:10px}
+.boutons-duo button{flex:1}
 .muted{color:var(--muted);font-size:.85rem}
 .tag{background:var(--orange);color:#222;border-radius:6px;padding:1px 7px;font-size:.75rem}
 table{border-collapse:collapse;width:100%}
@@ -332,10 +334,10 @@ async function vueAccueil(){
     </div>
 
     <label>Type d'options</label>
-    <div class="row">
-      <button type="button" id="mDates" class="sec on" onclick="setMode('dates')">📅 Dates</button>
-      <button type="button" id="mTexte" class="sec" onclick="setMode('texte')">📝 Texte libre</button>
-    </div>
+    <div class="boutons-duo">
+  <button type="button" id="mDates" class="sec on" onclick="setMode('dates')">📅 Dates</button>
+  <button type="button" id="mTexte" class="sec" onclick="setMode('texte')">📝 Texte libre</button>
+  </div>
     <div id="options" style="margin-top:8px"></div>
     <button type="button" class="jaune" onclick="addOpt()" style="margin-top:8px">+ Ajouter une option</button>
 
