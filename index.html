@@ -1,99 +1,83 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ENSEMBLE – Gratuit pour toujours</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ensemble – Sondages</title>
 <style>
-  :root{
-    --bg:#2b2b30; --bg2:#35353c; --bg3:#41414a;
-    --rose:#ff5fa2; --jaune:#ffd23f; --orange:#ff8c42;
-    --texte:#f4f4f6; --muted:#a8a8b3; --ok:#7bd88f; --non:#ff6b6b;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--texte);line-height:1.5}
-  header{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:3px solid;border-image:linear-gradient(90deg,var(--rose),var(--jaune),var(--orange)) 1;background:var(--bg2)}
-  header h1{margin:0;font-size:1.5rem;background:linear-gradient(90deg,var(--rose),var(--jaune),var(--orange));-webkit-background-clip:text;background-clip:text;color:transparent;cursor:pointer}
-  #userbox{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted)}
-  main{max-width:980px;margin:0 auto;padding:24px 16px 60px}
-  .card{background:var(--bg2);border-radius:14px;padding:22px;margin-bottom:20px;box-shadow:0 4px 18px rgba(0,0,0,.35);border-top:3px solid var(--rose)}
-  .card.jaune{border-top-color:var(--jaune)} .card.orange{border-top-color:var(--orange)}
-  h2{margin:0 0 14px;color:var(--jaune)} h3{color:var(--orange);margin:18px 0 8px}
-  label{display:block;font-weight:600;margin:14px 0 6px;color:var(--rose)}
-  input,textarea{width:100%;padding:11px 12px;border-radius:9px;border:2px solid var(--bg3);background:var(--bg);color:var(--texte);font-size:1rem;font-family:inherit}
-  input:focus,textarea:focus{outline:none;border-color:var(--jaune)}
-  button,.btn{cursor:pointer;border:none;border-radius:9px;padding:11px 18px;font-size:.95rem;font-weight:700;color:#2b2b30;background:linear-gradient(90deg,var(--rose),var(--orange));transition:transform .12s,filter .12s}
-  button:hover{transform:translateY(-1px);filter:brightness(1.1)} button:disabled{opacity:.5;cursor:wait}
-  button.sec{background:var(--bg3);color:var(--texte)} button.jaune{background:var(--jaune)}
-  button.danger{background:transparent;color:var(--non);border:2px solid var(--non);padding:6px 10px}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .row>*{flex:1;min-width:140px} .row>button{flex:0 0 auto}
-  .tabs{display:flex;gap:8px;margin-bottom:14px}
-  .tabs button{background:var(--bg3);color:var(--texte)} .tabs button.on{background:var(--jaune);color:#2b2b30}
-  .opt{display:flex;gap:8px;margin-bottom:8px;align-items:center} .opt input{flex:1}
-  .tag{display:inline-block;padding:3px 10px;border-radius:20px;background:var(--bg3);margin:3px;font-size:.85rem}
-  .tag b{color:var(--rose);cursor:pointer;margin-left:6px}
-  .muted{color:var(--muted);font-size:.9rem}
-  table{border-collapse:collapse;width:100%;font-size:.95rem}
-  th,td{padding:10px;text-align:center;border-bottom:1px solid var(--bg3)}
-  th{background:var(--bg3);color:var(--jaune)} td:first-child,th:first-child{text-align:left;font-weight:600}
-  td.oui{background:rgba(123,216,143,.22);color:var(--ok)} td.peut{background:rgba(255,210,63,.22);color:var(--jaune)}
-  td.non{background:rgba(255,107,107,.18);color:var(--non)} td.att{color:var(--muted)}
-  tr.total td{font-weight:800;border-top:3px solid var(--orange)}
-  td.best,th.best{outline:3px solid var(--rose);outline-offset:-3px}
-  .choix{display:grid;gap:10px}
-  .choix .ligne{background:var(--bg);border-radius:10px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-  .choix .btns{display:flex;gap:6px}
-  .choix .btns button{background:var(--bg3);color:var(--texte);padding:8px 14px}
-  .choix .btns button.sel.oui{background:var(--ok);color:#222} .choix .btns button.sel.peut{background:var(--jaune);color:#222} .choix .btns button.sel.non{background:var(--non);color:#222}
-  .bar{height:10px;border-radius:6px;background:var(--bg3);overflow:hidden;margin-top:6px}
-  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--orange))}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--jaune);color:#222;padding:12px 20px;border-radius:10px;font-weight:700;z-index:99}
-  .toast.err{background:var(--non)}
-  .authbox{max-width:420px;margin:40px auto}
-  .lienbox{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-  .lienbox input{flex:1;min-width:220px;font-size:.85rem}
-  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
-  @media print{
-    body{background:#fff;color:#000} header,.noprint,footer{display:none!important}
-    .card{box-shadow:none;border:1px solid #999;background:#fff} h2,h3,th{color:#000} th{background:#eee}
-    td.oui{background:#cfeccf;color:#000} td.peut{background:#fff3b0;color:#000} td.non{background:#f5c6c6;color:#000}
-  }
+:root{--bg:#1f1f24;--bg2:#2a2a31;--bg3:#3a3a44;--txt:#f2f2f2;--muted:#a8a8b3;
+--rose:#ff5fa2;--jaune:#ffd23f;--orange:#ff8c42}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:var(--bg2);border-bottom:3px solid var(--rose)}
+header h1{margin:0;font-size:1.3rem;cursor:pointer;color:var(--jaune)}
+#userbox{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted)}
+main{max-width:860px;margin:20px auto;padding:0 14px}
+footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
+.card{background:var(--bg2);border-radius:12px;padding:18px;margin-bottom:16px;border-left:5px solid var(--rose)}
+.card.jaune{border-left-color:var(--jaune)}
+h2{margin:0 0 10px;color:var(--orange)}
+label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--muted)}
+input,textarea,select{width:100%;padding:9px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--txt);font:inherit}
+button{background:var(--rose);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer;font-weight:600}
+button.jaune{background:var(--jaune);color:#222}
+button.sec{background:var(--bg3);color:var(--txt)}
+button:disabled{opacity:.5}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.row>div{flex:1;min-width:180px}
+.muted{color:var(--muted);font-size:.85rem}
+.tag{background:var(--orange);color:#222;border-radius:6px;padding:1px 7px;font-size:.75rem}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--bg3);padding:7px;text-align:center}
+th{background:var(--bg3)}
+th.best,td.best{outline:2px solid var(--jaune)}
+td.oui{background:#2e5d34}td.peut{background:#6b5d1a}td.non{background:#6b2a2a}
+.bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--rose)}
+.choix{display:flex;gap:6px}
+.choix button{background:var(--bg3);flex:1}
+.choix button.sel.oui{background:#2e8b3d}.choix button.sel.peut{background:#c9a21a;color:#222}.choix button.sel.non{background:#b03a3a}
+.lienbox{display:flex;gap:8px}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);padding:10px 16px;border-radius:8px;display:none;z-index:9}
+#toast.err{background:#b03a3a}
+@media print{
+ body{background:#fff;color:#000}header,.noprint,footer{display:none!important}
+ .card{background:#fff;border:1px solid #999}h2{color:#000}th{background:#eee;color:#000}
+ td.oui{background:#cfeccf}td.peut{background:#fff3b0}td.non{background:#f5c6c6}
+}
 </style>
 </head>
 <body>
-<header>
-  <h1 onclick="goHome()">📅 ENSEMBLE</h1>
-  <div id="userbox"></div>
-</header>
+<header><h1 onclick="goHome()">📅 Ensemble</h1><div id="userbox"></div></header>
 <main id="app"></main>
-<footer>Gratuit pour toujours · Sans pub · Sur invitation seulement</footer>
+<footer>Gratuit · Sans pub · Sur invitation seulement</footer>
+<div id="toast"></div>
 
-<script src="config.js"></script>
 <script>
-/* =========================================================
-   Utilitaires
-   ========================================================= */
+/* ================= CONFIG ================= */
+const CONFIG = {
+  AUTH_URL: 'https://ep-odd-glitter-bdbk5ee1.neonauth.c-8.us-east-2.aws.neon.tech/neondb/auth',
+  DATA_API_URL: 'https://ep-odd-glitter-bdbk5ee1.apirest.c-8.us-east-2.aws.neon.tech/neondb/rest/v1',
+  INVITE_EMAIL: 'invite@ensemble.app',
+  INVITE_PASSWORD: '12345678'
+};
+
+/* ================= Outils ================= */
 const $ = s => document.querySelector(s);
 const app = $('#app');
-const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const VAL = {oui:'✔ Oui', peut:'(✔) Peut-être', non:'✘ Non'};
-function toast(msg,err){ const t=document.createElement('div'); t.className='toast'+(err?' err':''); t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3000); }
-function copier(txt){ navigator.clipboard.writeText(txt).then(()=>toast('Copié ✔'),()=>prompt('Copiez :',txt)); }
+const esc = s => { const d=document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 const base = () => location.origin + location.pathname;
+const VAL = {oui:'✔', peut:'(✔)', non:'✘'};
+function toast(m, err){ const t=$('#toast'); t.textContent=m; t.className=err?'err':''; t.style.display='block'; setTimeout(()=>t.style.display='none',3500); }
 function goHome(){ location.href = base(); }
-function libelle(kind,label){
-  if(kind!=='dates') return label;
-  const d=new Date(label); return isNaN(d)?label:d.toLocaleString('fr-CA',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+function libelle(kind, label){
+  if(kind==='dates'){ const d=new Date(label); if(!isNaN(d)) return d.toLocaleString('fr-CA',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+  return label;
 }
-/* Normalise les anciennes/nouvelles valeurs de réponse */
-const normAns = a => (a==='peut-etre' ? 'peut' : a);
 
-/* =========================================================
-   Authentification : Neon Auth (Better Auth) via REST
-   ========================================================= */
+/* ================= Auth (Neon Auth / Better Auth) ================= */
 const Auth = {
-  jwt: null, user: null, jwtExp: 0,
+  user:null, jwt:null, jwtExp:0,
   async call(path, opts={}){
     const r = await fetch(CONFIG.AUTH_URL + path, {
       credentials:'include',
@@ -101,87 +85,82 @@ const Auth = {
       ...opts
     });
     const txt = await r.text(); let data=null; try{ data=JSON.parse(txt); }catch{}
-    if(!r.ok) throw new Error((data&&(data.message||data.error))||('Erreur '+r.status));
+    if(!r.ok) throw new Error((data&&(data.message||data.error))||('Erreur auth '+r.status));
     return data;
   },
-  async signUp(name,email,password){ return this.call('/sign-up/email',{method:'POST',body:JSON.stringify({name,email,password})}); },
-  async signIn(email,password){ return this.call('/sign-in/email',{method:'POST',body:JSON.stringify({email,password})}); },
-  async signOut(){ try{ await this.call('/sign-out',{method:'POST',body:'{}'}); }catch{} this.jwt=null; this.user=null; },
+  signUp(name,email,password){ return this.call('/sign-up/email',{method:'POST',body:JSON.stringify({name,email,password})}); },
+  signIn(email,password){ return this.call('/sign-in/email',{method:'POST',body:JSON.stringify({email,password})}); },
+  async signOut(){ try{ await this.call('/sign-out',{method:'POST',body:'{}'}); }catch{} this.user=null; this.jwt=null; },
   async refresh(){
-    try{
-      const s = await this.call('/get-session');
-      this.user = s && s.user ? s.user : null;
-      if(this.user) await this.getToken(true);
-    }catch{ this.user=null; }
+    try{ const s = await this.call('/get-session'); this.user = s && s.user ? s.user : null; }
+    catch{ this.user=null; }
     return this.user;
   },
   async getToken(force){
     if(!force && this.jwt && Date.now() < this.jwtExp) return this.jwt;
-    const t = await this.call('/token');
-    this.jwt = t.token;
-    this.jwtExp = Date.now() + 10*60*1000;
-    return this.jwt;
+    // 1) JWT via /token  2) à défaut, jeton de session renvoyé par get-session
+    let tok=null;
+    try{ const d = await this.call('/token'); tok = d && (d.token || d.jwt); }catch{}
+    if(!tok){
+      const r = await fetch(CONFIG.AUTH_URL + '/get-session', {credentials:'include'});
+      tok = r.headers.get('set-auth-jwt');
+    }
+    if(!tok) throw new Error('Jeton introuvable : reconnectez-vous');
+    this.jwt = tok; this.jwtExp = Date.now() + 10*60*1000;
+    return tok;
   }
 };
 
-/* =========================================================
-   Data API (PostgREST de Neon)
-   anon:true  → aucun en-tête Authorization (accès invité)
-   ========================================================= */
-async function api(path, {method='GET', body=null, anon=false} = {}){
-  const h = {'Content-Type':'application/json'};
-  if(anon){
-    h['Authorization'] = 'Bearer ' + CONFIG.ANON_KEY;
-  } else {
-    h['Authorization'] = 'Bearer ' + await Auth.getToken();
-  }
+/* ================= Data API ================= */
+async function api(path, {method='GET', body=null, guest=false} = {}){
+  const token = guest ? await guestToken() : await Auth.getToken();
   const r = await fetch(CONFIG.DATA_API_URL + path, {
     method,
-    headers:h,
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
     ...(body===null ? {} : {body:JSON.stringify(body)})
   });
-  
-  const txt = await r.text();
-  let data = null;
-  try{ data = JSON.parse(txt); }catch{}
-  if(!r.ok) throw new Error((data&&(data.message||data.details||data.hint||data.error))||('Erreur '+r.status));
+  const txt = await r.text(); let data=null; try{ data=JSON.parse(txt); }catch{}
+  if(!r.ok) throw new Error((data&&(data.message||data.details||data.hint||data.error))||('Erreur API '+r.status));
   return data;
 }
-const rpc = (fn,args,anon) => api('/rpc/'+fn,{method:'POST',body:args,anon});
+const rpc = (fn,args,guest) => api('/rpc/'+fn,{method:'POST',body:args,guest});
 
-/* =========================================================
-   Routage
-   ?v=ID  → page de vote publique (sans compte)
-   ?p=ID  → résultats (créateur connecté)
-   ========================================================= */
+/* Compte invité : connexion silencieuse pour la page de vote */
+let GUEST_JWT=null, GUEST_EXP=0;
+async function guestToken(){
+  if(GUEST_JWT && Date.now()<GUEST_EXP) return GUEST_JWT;
+  await Auth.signIn(CONFIG.INVITE_EMAIL, CONFIG.INVITE_PASSWORD).catch(()=>{});
+  const t = await Auth.getToken(true);
+  GUEST_JWT=t; GUEST_EXP=Date.now()+10*60*1000;
+  return t;
+}
+
+/* ================= Routage ================= */
 async function route(){
   const p = new URLSearchParams(location.search);
   if(p.get('v')) return vueVote(p.get('v'));
   await Auth.refresh();
   renderUserBox();
-  if(!Auth.user) return vueConnexion();
+  if(!Auth.user || Auth.user.email===CONFIG.INVITE_EMAIL) return vueConnexion();
   if(p.get('p')) return vueResultats(p.get('p'));
   return vueAccueil();
 }
 function renderUserBox(){
-  $('#userbox').innerHTML = Auth.user
+  $('#userbox').innerHTML = Auth.user && Auth.user.email!==CONFIG.INVITE_EMAIL
     ? `<span>${esc(Auth.user.email)}</span><button class="sec" onclick="deconnexion()">Déconnexion</button>` : '';
 }
 async function deconnexion(){ await Auth.signOut(); goHome(); }
 
-/* =========================================================
-   Vue : connexion / inscription
-   ========================================================= */
+/* ================= Connexion ================= */
 let authMode='in';
 function vueConnexion(){
-  app.innerHTML = `<div class="card authbox">
-    <h2>${authMode==='in'?'Connexion':'Créer un compte'}</h2>
-    <p class="muted">Pour <b>créer</b> des sondages. Les invités répondent sans compte.</p>
+  app.innerHTML = `<div class="card"><h2>${authMode==='in'?'Connexion':'Créer un compte'}</h2>
+    <p class="muted">Pour <b>créer</b> des sondages. Les invités votent sans compte.</p>
     ${authMode==='up'?'<label>Nom</label><input id="aNom">':''}
     <label>Courriel</label><input id="aEmail" type="email" autocomplete="email">
-    <label>Mot de passe</label><input id="aPass" type="password" autocomplete="${authMode==='in'?'current-password':'new-password'}" onkeydown="if(event.key==='Enter')soumettreAuth()">
-    <div style="margin-top:16px" class="row">
-      <button id="aBtn" onclick="soumettreAuth()">${authMode==='in'?'Se connecter':'S\'inscrire'}</button>
+    <label>Mot de passe</label><input id="aPass" type="password" autocomplete="current-password">
+    <div class="row" style="margin-top:14px">
+      <button id="aBtn" onclick="soumettreAuth()">${authMode==='in'?'Se connecter':'Créer mon compte'}</button>
       <button class="sec" onclick="authMode=authMode==='in'?'up':'in';vueConnexion()">${authMode==='in'?'Créer un compte':'J\'ai déjà un compte'}</button>
     </div></div>`;
 }
@@ -189,88 +168,69 @@ async function soumettreAuth(){
   const email=$('#aEmail').value.trim(), pass=$('#aPass').value;
   const btn=$('#aBtn'); btn.disabled=true;
   try{
-    if(authMode==='up'){
-      const nom=$('#aNom').value.trim()||email.split('@')[0];
-      await Auth.signUp(nom,email,pass);
-    } else {
-      await Auth.signIn(email,pass);
-    }
+    if(authMode==='up'){ await Auth.signUp(($('#aNom').value.trim()||email.split('@')[0]),email,pass); }
+    else { await Auth.signIn(email,pass); }
     await route();
   }catch(e){ toast(e.message,true); btn.disabled=false; }
 }
 
-/* =========================================================
-   Vue : accueil (création + mes sondages)
-   ========================================================= */
-let mode='dates', invites=[];
+/* ================= Accueil : création + mes sondages ================= */
+let mode='dates';
 async function vueAccueil(){
   app.innerHTML = `<div class="card"><h2>Créer un sondage</h2>
     <label>Titre</label><input id="titre" placeholder="Ex. : Souper d'équipe">
     <label>Description (facultatif)</label><textarea id="desc" rows="2"></textarea>
     <div class="row">
       <div><label>Votre nom</label><input id="auteur" value="${esc(Auth.user.name||'')}"></div>
-      <div><label>Votre courriel</label><input id="courriel" type="email" value="${esc(Auth.user.email)}"></div>
+      <div><label>Votre courriel</label><input id="courriel" value="${esc(Auth.user.email||'')}"></div>
     </div>
+    <label>Mot magique (à donner à vos invités avec le lien)</label>
+    <input id="mot" placeholder="Ex. : pizza2026">
     <label>Type d'options</label>
-    <div class="tabs">
-      <button type="button" id="mDates" onclick="setMode('dates')">📆 Dates / heures</button>
-      <button type="button" id="mTexte" onclick="setMode('texte')">📝 Choix libres</button>
-    </div>
-    <div id="options"></div>
-    <button type="button" class="sec" onclick="addOpt()">+ Ajouter une option</button>
-    <label>Invités (facultatif : pour suivre qui a été invité)</label>
-    <div class="row"><input id="invNew" type="text" placeholder="a@ex.com, b@ex.com" onkeydown="if(event.key==='Enter'){event.preventDefault();addInv()}">
-    <button type="button" class="jaune" onclick="addInv()">Ajouter</button></div>
-    <div id="invList" style="margin-top:8px"></div>
-    <button id="btnCreer" type="button" onclick="creer()" style="margin-top:14px">Créer le sondage ➜</button>
+    <select id="mode" onchange="mode=this.value;setMode()">
+      <option value="dates">Dates / heures</option><option value="texte">Texte libre</option>
+    </select>
+    <label>Options</label><div id="opts"></div>
+    <div class="row" style="margin-top:10px"><button class="sec" onclick="ajouterOpt()">+ Option</button>
+    <button id="btnCreer" onclick="creer()">Créer le sondage</button></div>
   </div>
-  <div class="card jaune" id="mesSondages"><h2>Mes sondages</h2><p class="muted">Chargement…</p></div>`;
-  setMode(mode); renderInv();
+  <div class="card jaune" id="mesSondages"><p class="muted">Chargement…</p></div>`;
+  setMode(); 
   try{
-    const polls = await api('/polls?select=id,title,created_at,closed,invitations(id)&order=created_at.desc');
+    const polls = await api('/polls?select=id,title,created_at,closed&order=created_at.desc');
     $('#mesSondages').innerHTML = '<h2>Mes sondages</h2>' + (polls.length ? polls.map(s=>`
       <div class="row" style="padding:8px 0;border-bottom:1px solid var(--bg3)">
         <div><b>${esc(s.title)}</b> ${s.closed?'<span class="tag">fermé</span>':''}
         <div class="muted">${new Date(s.created_at).toLocaleDateString('fr-CA')}</div></div>
-        <button class="jaune" onclick="location.search='?p=${s.id}'">Ouvrir</button>
-        <button class="danger" onclick="supprimer('${s.id}')">Supprimer</button>
+        <div><button class="jaune" onclick="location.search='?p=${s.id}'">Ouvrir</button>
+        <button class="sec" onclick="supprimer('${s.id}')">🗑</button></div>
       </div>`).join('') : '<p class="muted">Aucun sondage pour l\'instant.</p>');
-  }catch(e){ toast(e.message,true); }
+  }catch(e){ $('#mesSondages').innerHTML='<p class="muted">Impossible de charger : '+esc(e.message)+'</p>'; }
 }
-function setMode(m){
-  mode=m; $('#mDates').classList.toggle('on',m==='dates'); $('#mTexte').classList.toggle('on',m==='texte');
-  $('#options').innerHTML=''; addOpt(); addOpt();
+function setMode(){
+  $('#mode').value=mode; $('#opts').innerHTML=''; ajouterOpt(); ajouterOpt();
 }
-function addOpt(){
-  const d=document.createElement('div'); d.className='opt';
-  d.innerHTML=(mode==='dates'?'<input type="datetime-local" class="o">':'<input type="text" class="o" placeholder="Option">')+'<button type="button" class="danger" onclick="this.parentNode.remove()">✕</button>';
-  $('#options').appendChild(d);
-}
-function addInv(){
-  const v=$('#invNew').value.split(/[,;\s]+/).map(x=>x.trim().toLowerCase()).filter(Boolean);
-  for(const e of v){
-    if(!/^\S+@\S+\.\S+$/.test(e)){toast('Courriel invalide : '+e,true);continue;}
-    if(!invites.includes(e)) invites.push(e);
-  }
-  $('#invNew').value=''; renderInv();
-}
-function renderInv(){
-  $('#invList').innerHTML = invites.map((e,i)=>`<span class="tag">${esc(e)}<b onclick="invites.splice(${i},1);renderInv()">✕</b></span>`).join('')||'<span class="muted">Aucun invité.</span>';
+function ajouterOpt(){
+  const i=document.createElement('input');
+  i.className='opt'; i.style.marginBottom='6px';
+  i.type = mode==='dates' ? 'datetime-local' : 'text';
+  if(mode!=='dates') i.placeholder='Option';
+  $('#opts').appendChild(i);
 }
 async function creer(){
-  if($('#invNew').value.trim()) addInv();
   const titre=$('#titre').value.trim(), auteur=$('#auteur').value.trim(), courriel=$('#courriel').value.trim();
-  const options=[...document.querySelectorAll('.o')].map(i=>i.value.trim()).filter(Boolean);
+  const mot=$('#mot').value.trim();
+  const options=[...document.querySelectorAll('.opt')].map(x=>x.value.trim()).filter(Boolean);
   if(!titre||!auteur||!courriel) return toast('Titre, nom et courriel requis',true);
+  if(mot.length<3) return toast('Mot magique : 3 caractères minimum',true);
   if(options.length<2) return toast('Au moins 2 options',true);
   const btn=$('#btnCreer'); btn.disabled=true;
   try{
     const res = await rpc('create_poll',{
       p_title:titre, p_description:$('#desc').value.trim(), p_kind:mode,
       p_creator_name:auteur, p_creator_email:courriel,
-      p_options:options, p_emails:invites
+      p_options:options, p_magic_word:mot
     });
-    invites=[];
     location.search='?p='+res.id;
   }catch(e){ toast(e.message,true); btn.disabled=false; }
 }
@@ -279,150 +239,123 @@ async function supprimer(id){
   try{ await api('/polls?id=eq.'+id,{method:'DELETE'}); vueAccueil(); }catch(e){ toast(e.message,true); }
 }
 
-/* =========================================================
-   Vue : résultats (créateur)
-   ========================================================= */
+/* ================= Résultats (créateur) ================= */
 let CUR=null;
 async function vueResultats(id){
   app.innerHTML='<div class="card"><p class="muted">Chargement…</p></div>';
   try{
-    const sel='id,title,description,kind,creator_name,creator_email,closed,'
-      +'poll_options(id,label,position),'
-      +'invitations(id,email,token,responses(option_id,answer,participant_name,answered_at))';
+    const sel='id,title,description,kind,magic_word,closed,poll_options(id,label,position),invitations(id,email,responses(option_id,answer,participant_name))';
     const rows = await api(`/polls?id=eq.${id}&select=${encodeURIComponent(sel)}`);
     if(!rows.length){ app.innerHTML='<div class="card"><h2>Introuvable</h2><button onclick="goHome()">Retour</button></div>'; return; }
-    const s=rows[0]; s.poll_options.sort((a,b)=>a.position-b.position);
-    CUR=s; rendreResultats();
+    CUR=rows[0]; CUR.poll_options.sort((a,b)=>a.position-b.position);
+    rendreResultats();
   }catch(e){ toast(e.message,true); }
 }
-
-/* Regroupe les réponses par participant (tous les invités confondus) */
-function participants(s){
-  const map = new Map();
-  s.invitations.forEach(inv=>{
-    inv.responses.forEach(r=>{
-      const nom = (r.participant_name||'').trim() || inv.email;
-      if(!map.has(nom)) map.set(nom,{nom, rep:{}});
-      map.get(nom).rep[r.option_id] = normAns(r.answer);
-    });
-  });
-  return [...map.values()];
-}
 function stats(s){
-  const P = participants(s);
   return s.poll_options.map(o=>{
     let oui=0,peut=0,non=0;
-    P.forEach(p=>{ const a=p.rep[o.id]; if(a==='oui')oui++; else if(a==='peut')peut++; else if(a==='non')non++; });
+    s.invitations.forEach(inv=>{ const r=inv.responses.find(x=>x.option_id===o.id);
+      if(r){ if(r.answer==='oui')oui++; else if(r.answer==='peut')peut++; else non++; }});
     return {oui,peut,non,score:oui*2+peut};
   });
 }
-function lienVote(id){ return `${base()}?v=${id}`; }
-
+const lienVote = id => `${base()}?v=${id}`;
 function rendreResultats(){
   const s=CUR, st=stats(s), max=Math.max(0,...st.map(x=>x.score));
-  const P=participants(s);
   const best=st.map(x=>max>0&&x.score===max);
-  const lien=lienVote(s.id);
+  const P=s.invitations.filter(i=>i.responses.length);
   app.innerHTML=`
-  <div class="card">
-    <h2>${esc(s.title)}</h2><p class="muted">${esc(s.description)}</p>
-    <p><b style="color:var(--rose)">${P.length}</b> réponse(s)</p>
+  <div class="card"><h2>${esc(s.title)}</h2><p class="muted">${esc(s.description)}</p>
+    <p><b style="color:var(--rose)">${P.length}</b> réponse(s) ${s.closed?'<span class="tag">fermé</span>':''}</p>
     <div class="noprint">
-      <label>Lien à partager avec vos invités</label>
-      <div class="lienbox">
-        <input id="lienChamp" readonly value="${esc(lien)}" onclick="this.select()">
-        <button id="btnLien" onclick="copierLien(this)">Copier le lien</button>
-      </div>
-    </div>
-    <div class="row noprint" style="margin-top:16px">
-      <button class="jaune" onclick="partager()">🔗 Partager les résultats</button>
-      <button class="sec" onclick="window.print()">🖨 Imprimer</button>
-      <button class="sec" onclick="exportCSV()">⬇ Exporter CSV</button>
-      <button class="sec" onclick="basculerFerme()">${s.closed?'🔓 Rouvrir':'🔒 Fermer'}</button>
-      <button class="sec" onclick="vueResultats('${s.id}')">⟳ Actualiser</button>
-    </div>
-  </div>
-  <div class="card jaune"><h2>Tableau des réponses</h2>
-    <div style="overflow-x:auto"><table>
-      <tr><th>Participant</th>${s.poll_options.map((o,i)=>`<th class="${best[i]?'best':''}">${esc(libelle(s.kind,o.label))}</th>`).join('')}</tr>
-      ${P.length ? P.map(p=>`<tr><td>${esc(p.nom)}</td>
-        ${s.poll_options.map(o=>{const a=p.rep[o.id];return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`}).join('')}</tr>`).join('')
-        : `<tr><td colspan="${s.poll_options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
-      <tr class="total"><td>Total (✔ / (✔) / ✘)</td>${st.map((x,i)=>`<td class="${best[i]?'best':''}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}</tr>
-    </table></div>
-    ${max>0?`<p style="margin-top:14px">🏆 Meilleure option : <b style="color:var(--rose)">${s.poll_options.filter((_,i)=>best[i]).map(o=>esc(libelle(s.kind,o.label))).join(' · ')}</b></p>`:''}
-  </div>
+      <label>Lien à partager</label>
+      <div class="lienbox"><input id="lienChamp" readonly value="${esc(lienVote(s.id))}" onclick="this.select()">
+      <button onclick="copierLien(this)">Copier</button></div>
+      <p class="muted">Mot magique à communiquer : <b style="color:var(--jaune)">${esc(s.magic_word)}</b></p>
+      <div class="row" style="margin-top:10px;justify-content:flex-start">
+        <button class="jaune" onclick="partager()">🔗 Partager</button>
+        <button class="sec" onclick="window.print()">🖨 Imprimer</button>
+        <button class="sec" onclick="exportCSV()">⬇ CSV</button>
+        <button class="sec" onclick="basculerFerme()">${s.closed?'🔓 Rouvrir':'🔒 Fermer'}</button>
+        <button class="sec" onclick="vueResultats('${s.id}')">⟳</button>
+      </div></div></div>
+  <div class="card jaune"><h2>Réponses</h2><div style="overflow-x:auto"><table>
+    <tr><th>Participant</th>${s.poll_options.map((o,i)=>`<th class="${best[i]?'best':''}">${esc(libelle(s.kind,o.label))}</th>`).join('')}</tr>
+    ${P.map(inv=>`<tr><td>${esc(inv.responses[0].participant_name||inv.email)}</td>
+      ${s.poll_options.map(o=>{const r=inv.responses.find(x=>x.option_id===o.id);return `<td class="${r?r.answer:''}">${r?VAL[r.answer]:'–'}</td>`}).join('')}</tr>`).join('')}
+    <tr><td><b>Total ✔ / (✔) / ✘</b></td>${st.map((x,i)=>`<td class="${best[i]?'best':''}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}</tr>
+  </table></div></div>
   <div class="noprint"><button class="sec" onclick="goHome()">← Retour</button></div>`;
 }
-
-async function copierLien(bouton){
-  const lien = lienVote(CUR.id);
-  try{
-    await navigator.clipboard.writeText(lien);
-  }catch{
-    const champ=$('#lienChamp'); champ.select(); document.execCommand('copy');
-  }
-  const t=bouton.textContent; bouton.textContent='Lien copié ✓';
-  setTimeout(()=>bouton.textContent=t,2000);
+async function copierLien(b){
+  try{ await navigator.clipboard.writeText(lienVote(CUR.id)); }
+  catch{ $('#lienChamp').select(); document.execCommand('copy'); }
+  const t=b.textContent; b.textContent='Copié ✓'; setTimeout(()=>b.textContent=t,2000);
 }
 async function basculerFerme(){
   try{ await api('/polls?id=eq.'+CUR.id,{method:'PATCH',body:{closed:!CUR.closed}}); vueResultats(CUR.id); }catch(e){ toast(e.message,true); }
 }
 function partager(){
-  const s=CUR, st=stats(s);
-  const txt=`Résultats : « ${s.title} »\n`+s.poll_options.map((o,i)=>`• ${libelle(s.kind,o.label)} : ${st[i].oui} oui, ${st[i].peut} peut-être, ${st[i].non} non`).join('\n');
-  if(navigator.share) navigator.share({title:s.title,text:txt}).catch(()=>{}); else copier(txt);
+  const txt=`${CUR.title}\nVotez ici : ${lienVote(CUR.id)}\nMot magique : ${CUR.magic_word}`;
+  if(navigator.share) navigator.share({title:CUR.title,text:txt}).catch(()=>{});
+  else navigator.clipboard.writeText(txt).then(()=>toast('Message copié'));
 }
 function exportCSV(){
-  const s=CUR, q=v=>'"'+String(v??'').replace(/"/g,'""')+'"', M={oui:'Oui',peut:'Peut-être',non:'Non'};
-  const L=[['Participant',...s.poll_options.map(o=>libelle(s.kind,o.label))]];
-  participants(s).forEach(p=>L.push([p.nom,...s.poll_options.map(o=>M[p.rep[o.id]]||'')]));
-  const st=stats(s);
-  L.push(['Total Oui',...st.map(x=>x.oui)],['Total Peut-être',...st.map(x=>x.peut)],['Total Non',...st.map(x=>x.non)]);
+  const s=CUR, P=s.invitations.filter(i=>i.responses.length);
+  const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const lignes=[['Participant',...s.poll_options.map(o=>libelle(s.kind,o.label))].map(q).join(',')];
+  P.forEach(inv=>lignes.push([inv.responses[0].participant_name||inv.email,
+    ...s.poll_options.map(o=>{const r=inv.responses.find(x=>x.option_id===o.id);return r?r.answer:''})].map(q).join(',')));
   const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\ufeff'+L.map(l=>l.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
-  a.download=s.title.replace(/\W+/g,'_')+'.csv'; a.click();
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+lignes.join('\n')],{type:'text/csv'}));
+  a.download='sondage.csv'; a.click();
 }
 
-/* =========================================================
-   Vue : vote public (sans compte, via le lien ?v=ID)
-   ========================================================= */
-let choix={}, VOTE=null;
-async function vueVote(pollId){
-  choix={};
-  app.innerHTML='<div class="card"><p class="muted">Chargement…</p></div>';
-  try{
-    VOTE = await rpc('get_poll_public',{p_poll_id:pollId},true);
-    if(!VOTE){ app.innerHTML='<div class="card"><h2>Lien invalide</h2><p class="muted">Ce sondage n\'existe pas.</p></div>'; return; }
-    app.innerHTML=`<div class="card">
-      <h2>${esc(VOTE.title)}</h2><p class="muted">Organisé par ${esc(VOTE.creator_name)}</p>
-      ${VOTE.description?`<p>${esc(VOTE.description)}</p>`:''}
-      ${VOTE.closed?'<p style="color:var(--non);font-weight:700">🔒 Ce sondage est fermé.</p>':''}
-      <label>Votre nom</label><input id="rNom" placeholder="Votre nom" ${VOTE.closed?'disabled':''}>
-      <h3>Vos disponibilités</h3>
-      <div class="choix">${VOTE.options.map(o=>`
-        <div class="ligne"><span>${esc(libelle(VOTE.kind,o.label))}</span>
-        <div class="btns" data-id="${o.id}">
-          ${['oui','peut','non'].map(v=>`<button type="button" data-v="${v}" ${VOTE.closed?'disabled':''}>${VAL[v]}</button>`).join('')}
-        </div></div>`).join('')}</div>
-      ${VOTE.closed?'':`<button id="btnRep" style="margin-top:18px" onclick="envoyerReponse('${pollId}')">Envoyer ma réponse ➜</button>`}
-    </div>`;
-    document.querySelectorAll('.btns button').forEach(b=>b.onclick=()=>{
-      const id=b.parentNode.dataset.id; choix[id]=b.dataset.v;
-      b.parentNode.querySelectorAll('button').forEach(x=>x.className='');
-      b.className='sel '+b.dataset.v;
-    });
-  }catch(e){ app.innerHTML=`<div class="card"><h2>Erreur</h2><p>${esc(e.message)}</p></div>`; }
+/* ================= Vote public (lien + mot magique) ================= */
+let choix={}, VOTE=null, VOTE_ID='', VOTE_WORD='';
+function vueVote(pollId){
+  VOTE_ID=pollId; choix={};
+  app.innerHTML=`<div class="card"><h2>Accès au sondage</h2>
+    <label>Mot magique</label><input id="mot" autocomplete="off">
+    <div style="margin-top:14px"><button id="btnMot" onclick="ouvrirSondage()">Entrer</button></div></div>`;
 }
-async function envoyerReponse(pollId){
+async function ouvrirSondage(){
+  VOTE_WORD=$('#mot').value.trim();
+  if(!VOTE_WORD) return toast('Entrez le mot magique',true);
+  const btn=$('#btnMot'); btn.disabled=true;
+  try{
+    VOTE = await rpc('get_poll_public',{p_poll_id:VOTE_ID,p_word:VOTE_WORD},true);
+    afficherVote();
+  }catch(e){ toast(e.message,true); btn.disabled=false; }
+}
+function afficherVote(){
+  const v=VOTE;
+  app.innerHTML=`<div class="card"><h2>${esc(v.title)}</h2>
+    <p class="muted">${esc(v.description)} — par ${esc(v.creator_name)}</p>
+    ${v.closed?'<p><span class="tag">Sondage fermé</span></p>':''}
+    <label>Votre nom</label><input id="rNom" ${v.closed?'disabled':''}>
+    ${v.options.map(o=>`<div style="margin-top:14px"><b>${esc(libelle(v.kind,o.label))}</b>
+      <div class="choix" data-o="${o.id}">
+        <button data-v="oui">✔ Oui</button><button data-v="peut">(✔) Peut-être</button><button data-v="non">✘ Non</button>
+      </div></div>`).join('')}
+    ${v.closed?'':'<div style="margin-top:18px"><button id="btnRep" onclick="envoyerReponse()">Envoyer ma réponse</button></div>'}
+  </div>`;
+  document.querySelectorAll('.choix button').forEach(b=>b.onclick=()=>{
+    if(v.closed) return;
+    const o=b.parentNode.dataset.o; choix[o]=b.dataset.v;
+    b.parentNode.querySelectorAll('button').forEach(x=>x.className='');
+    b.className='sel '+b.dataset.v;
+  });
+}
+async function envoyerReponse(){
   const nom=$('#rNom').value.trim();
   if(!nom) return toast('Entrez votre nom',true);
   if(Object.keys(choix).length<VOTE.options.length) return toast('Répondez à chaque option',true);
-  const answers = Object.entries(choix).map(([option_id,answer])=>({option_id,answer}));
+  const answers=Object.entries(choix).map(([option_id,answer])=>({option_id,answer}));
   const btn=$('#btnRep'); btn.disabled=true;
   try{
-    await rpc('submit_response',{p_poll_id:pollId,p_name:nom,p_answers:answers},true);
-    app.innerHTML='<div class="card"><h2>✅ Merci !</h2><p>Votre réponse a été enregistrée. Pour la modifier, rouvrez le lien et utilisez le même nom.</p></div>';
+    await rpc('submit_response',{p_poll_id:VOTE_ID,p_word:VOTE_WORD,p_name:nom,p_answers:answers},true);
+    app.innerHTML='<div class="card"><h2>✅ Merci !</h2><p>Votre réponse est enregistrée.</p></div>';
   }catch(e){ toast(e.message,true); btn.disabled=false; }
 }
 
