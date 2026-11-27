@@ -380,6 +380,25 @@ async function vueResultats(id, silencieux){
     if(!silencieux) definirAuto(()=>vueResultats(id,true));
   }catch(e){ if(!silencieux) toast(e.message,true); }
 }
+
+function normAns(a){
+  if(a === 'peut-etre' || a === 'peut-être') return 'peut';
+  return a;
+}
+
+/* Regroupe les réponses par participant (tous les invités confondus) */
+function participants(s){
+  const map = new Map();
+  s.invitations.forEach(inv => {
+    inv.responses.forEach(r => {
+      const nom = (r.participant_name || '').trim() || inv.email;
+      if(!map.has(nom)) map.set(nom, { nom, rep: {} });
+      map.get(nom).rep[r.option_id] = normAns(r.answer);
+    });
+  });
+  return [...map.values()];
+}
+
 function stats(s){
   return s.poll_options.map(o=>{
     let oui=0,peut=0,non=0;
