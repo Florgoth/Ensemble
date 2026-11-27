@@ -51,6 +51,13 @@ th.egalite,td.egalite{background:var(--orange)!important;color:#222!important;fo
 .verdict.gagnant{background:var(--rose);color:#fff}
 .verdict.egalite{background:var(--orange);color:#222}
 .verdict.vide{background:var(--bg3);color:var(--muted)}
+.gagnant{ background:rgba(123,216,143,.25) !important; box-shadow:inset 0 -4px 0 var(--ok); }
+.gagnant-titre{ color:var(--ok); font-weight:800; }
+.egalite{ background:rgba(255,210,63,.22) !important; box-shadow:inset 0 -4px 0 var(--jaune); }
+.egalite-titre{ color:var(--jaune); font-weight:800; }
+.bandeau{ padding:12px 14px; border-radius:10px; margin:12px 0; font-weight:600; }
+.bandeau.ok{ background:rgba(123,216,143,.15); border:1px solid var(--ok); color:var(--ok); }
+.bandeau.eg{ background:rgba(255,210,63,.15); border:1px solid var(--jaune); color:var(--jaune); }
 }
 </style>
 </head>
@@ -80,6 +87,33 @@ function goHome(){ location.href = base(); }
 function libelle(kind, label){
   if(kind==='dates'){ const d=new Date(label); if(!isNaN(d)) return d.toLocaleString('fr-CA',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
   return label;
+}
+
+/* Analyse du classement : gagnant, égalité ou rien */
+function analyserGagnant(s, st){
+  const max = Math.max(0, ...st.map(x => x.score));
+  if(max === 0) return { type:'aucun', indices:[], max };
+  const indices = st.map((x,i) => x.score === max ? i : -1).filter(i => i >= 0);
+  return { type: indices.length === 1 ? 'gagnant' : 'egalite', indices, max };
+}
+
+/* Classes CSS pour une colonne d'option */
+function classeOption(i, res){
+  if(res.type === 'gagnant' && res.indices[0] === i) return 'gagnant';
+  if(res.type === 'egalite' && res.indices.includes(i)) return 'egalite';
+  return '';
+}
+
+/* Bandeau de résultat affiché au-dessus du tableau */
+function bandeauResultat(s, st, res){
+  if(res.type === 'aucun') return '<div class="bandeau">Aucun vote pour l\'instant.</div>';
+  if(res.type === 'gagnant'){
+    const o = s.poll_options[res.indices[0]];
+    return `<div class="bandeau ok">🏆 Option gagnante : <b>${esc(libelle(s.kind, o.label))}</b>
+      (${st[res.indices[0]].oui} ✔ · ${st[res.indices[0]].peut} (✔) · ${st[res.indices[0]].non} ✘)</div>`;
+  }
+  const noms = res.indices.map(i => esc(libelle(s.kind, s.poll_options[i].label))).join(' · ');
+  return `<div class="bandeau eg">⚖️ Égalité — résultat pas encore évident : <b>${noms}</b></div>`;
 }
 
 /* ================= Auth (Neon Auth / Better Auth) ================= */
@@ -409,69 +443,46 @@ function stats(s){
 }
 const lienVote = id => `${base()}?v=${id}`;
 function rendreResultats(){
-  const s=CUR, st=stats(s), c=classer(st);
-  const P=participants(s);
-  const lienV=lienVote(s.id);
-  const lienR=lienLecture(s.id);
+  const s = CUR, st = stats(s), res = analyserGagnant(s, st);
+  const P = participants(s);
+  const lien = lienVote(s.id);
 
-  app.innerHTML=`
+  app.innerHTML = `
   <div class="card">
-    <h2>${esc(s.title)} ${s.closed?'<span class="tag">fermé</span>':''}</h2>
-    <p class="muted">${esc(s.description||'')}</p>
+    <h2>${esc(s.title)}</h2><p class="muted">${esc(s.description || '')}</p>
     <p><b style="color:var(--rose)">${P.length}</b> réponse(s)</p>
-
+    ${bandeauResultat(s, st, res)}
     <div class="noprint">
-      <label>Lien pour voter (à donner avec le mot magique)</label>
+      <label>Lien à partager avec vos invités</label>
       <div class="lienbox">
-        <input id="lienVote" readonly value="${esc(lienV)}" onclick="this.select()">
-        <button onclick="copierChamp('lienVote',this)">Copier</button>
+        <input id="lienChamp" readonly value="${esc(lien)}" onclick="this.select()">
       </div>
-      <p class="muted">Mot magique : <b style="color:var(--jaune)">${esc(s.magic_word||'')}</b></p>
-
-      <label style="margin-top:12px">Lien de lecture seule (résultats, sans droit de vote)</label>
-      <div class="lienbox">
-        <input id="lienLect" readonly value="${esc(lienR)}" onclick="this.select()">
-        <button onclick="copierChamp('lienLect',this)">Copier</button>
-      </div>
-      <p class="muted">Mot de lecture : <b style="color:var(--orange)">${esc(s.read_word||'')}</b></p>
-    </div>
-
-    <div class="row noprint" style="margin-top:16px">
-      <button class="btnAuto sec" onclick="basculerAuto()"></button>
-      <button class="sec" onclick="rafraichir()">⟳ Actualiser maintenant</button>
-      <button class="jaune" onclick="partager()">🔗 Partager les résultats</button>
-      <button class="sec" onclick="window.print()">🖨 Imprimer</button>
-      <button class="sec" onclick="exportCSV()">⬇ Exporter CSV</button>
-      <button class="sec" onclick="basculerFerme()">${s.closed?'🔓 Rouvrir':'🔒 Fermer'}</button>
     </div>
   </div>
 
-  <div class="card jaune">
-    <h2>Tableau des réponses</h2>
-    ${verdictHTML(c,s.poll_options,s.kind)}
-    <div style="overflow-x:auto;margin-top:12px"><table>
-      <tr>
-        <th>Participant</th>
-        ${s.poll_options.map((o,i)=>`<th class="${c.cls[i]}">${esc(libelle(s.kind,o.label))}</th>`).join('')}
+  <div class="card jaune"><h2>Tableau des réponses</h2>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Participant</th>
+        ${s.poll_options.map((o,i) => {
+          const c = classeOption(i, res);
+          const couronne = (res.type==='gagnant' && res.indices[0]===i) ? ' 🏆' : '';
+          return `<th class="${c}">${esc(libelle(s.kind,o.label))}${couronne}</th>`;
+        }).join('')}
       </tr>
-      ${P.length ? P.map(p=>`<tr>
-          <td>${esc(p.nom)}</td>
-          ${s.poll_options.map((o,i)=>{
-            const a=p.rep[o.id];
-            return `<td class="${a||'att'} ${c.cls[i]}">${a?VAL[a]:'—'}</td>`;
-          }).join('')}
-        </tr>`).join('')
+      ${P.length ? P.map(p => `<tr><td>${esc(p.nom)}</td>
+        ${s.poll_options.map(o => {
+          const a = p.rep[o.id];
+          return `<td class="${a || 'att'}">${a ? VAL[a] : '—'}</td>`;
+        }).join('')}</tr>`).join('')
         : `<tr><td colspan="${s.poll_options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
-      <tr class="total">
-        <td>Total (✔ / (✔) / ✘)</td>
-        ${st.map((x,i)=>`<td class="${c.cls[i]}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
+      <tr class="total"><td class="${res.type==='egalite'?'egalite-titre':''}">Total (✔ / (✔) / ✘)</td>
+        ${st.map((x,i) => `<td class="${classeOption(i,res)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
       </tr>
     </table></div>
   </div>
+  <div class="noprint"><button class="sec" onclick="goHome()">← Retour</button></div>`;
 
-  <div class="noprint"><button class="sec" onclick="arreterAuto();AUTO=false;AUTO_FN=null;goHome()">← Retour</button></div>`;
-
-  appliquerAuto();
+   appliquerAuto();
 }
 
 async function copierTexte(t,b){
