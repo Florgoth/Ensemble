@@ -275,53 +275,62 @@ async function soumettreAuth(){
 }
 
 /* ================= Accueil : création + mes sondages ================= */
-let mode='dates';
+let mode='dates', invites=[];
 async function vueAccueil(){
   app.innerHTML = `<div class="card"><h2>Créer un sondage</h2>
     <label>Titre</label><input id="titre" placeholder="Ex. : Souper d'équipe">
     <label>Description (facultatif)</label><textarea id="desc" rows="2"></textarea>
     <div class="row">
       <div><label>Votre nom</label><input id="auteur" value="${esc(Auth.user.name||'')}"></div>
-      <div><label>Votre courriel</label><input id="courriel" value="${esc(Auth.user.email||'')}"></div>
+      <div><label>Votre courriel</label><input id="courriel" type="email" value="${esc(Auth.user.email||'')}"></div>
     </div>
 
-    <label>Mot magique (à donner à vos invités avec le lien)</label>
-    <input id="mot" placeholder="Ex. : pizza2026">
+    <label>Type d'options</label>
+    <div class="row">
+      <button type="button" id="mDates" class="sec on" onclick="setMode('dates')">📅 Dates</button>
+      <button type="button" id="mTexte" class="sec" onclick="setMode('texte')">📝 Texte libre</button>
+    </div>
+    <div id="options" style="margin-top:8px"></div>
+    <button type="button" class="jaune" onclick="addOpt()" style="margin-top:8px">+ Ajouter une option</button>
 
-    <label>Mot de lecture (pour voir les résultats, sans pouvoir voter)</label>
+    <label>Mot magique (pour voter)</label>
+    <input id="motMagique" autocomplete="off" placeholder="ex. : souper2026">
+    <label>Mot de lecture (pour voir les résultats, sans voter)</label>
     <input id="motLecture" autocomplete="off" placeholder="ex. : resultats2026">
 
-    <label>Type d'options</label>
-    <select id="mode" onchange="mode=this.value;setMode()">
-      <option value="dates">Dates / heures</option><option value="texte">Texte libre</option>
-    </select>
-    <label>Options</label><div id="opts"></div>
-    <div class="row" style="margin-top:10px"><button class="sec" onclick="ajouterOpt()">+ Option</button>
-
-    <button id="btnCreer" onclick="creer()">Créer le sondage</button></div>
+    <button id="btnCreer" type="button" onclick="creer()" style="margin-top:14px">Créer le sondage ➜</button>
   </div>
-  <div class="card jaune" id="mesSondages"><p class="muted">Chargement…</p></div>`;
-  setMode(); 
+  <div class="card jaune" id="mesSondages"><h2>Mes sondages</h2><p class="muted">Chargement…</p></div>`;
+
+  setMode(mode);
   try{
     const polls = await api('/polls?select=id,title,created_at,closed&order=created_at.desc');
     $('#mesSondages').innerHTML = '<h2>Mes sondages</h2>' + (polls.length ? polls.map(s=>`
       <div class="row" style="padding:8px 0;border-bottom:1px solid var(--bg3)">
         <div><b>${esc(s.title)}</b> ${s.closed?'<span class="tag">fermé</span>':''}
-        <div class="muted">${new Date(s.created_at).toLocaleDateString('fr-CA')}</div></div>
-        <div><button class="jaune" onclick="location.search='?p=${s.id}'">Ouvrir</button>
-        <button class="sec" onclick="supprimer('${s.id}')">🗑</button></div>
+          <div class="muted">${new Date(s.created_at).toLocaleDateString('fr-CA')}</div></div>
+        <button class="jaune" onclick="location.search='?p=${s.id}'">Ouvrir</button>
+        <button class="danger" onclick="supprimer('${s.id}')">Supprimer</button>
       </div>`).join('') : '<p class="muted">Aucun sondage pour l\'instant.</p>');
-  }catch(e){ $('#mesSondages').innerHTML='<p class="muted">Impossible de charger : '+esc(e.message)+'</p>'; }
+  }catch(e){ toast(e.message,true); }
 }
-function setMode(){
-  $('#mode').value=mode; $('#opts').innerHTML=''; ajouterOpt(); ajouterOpt();
+function setMode(m){
+  mode = m;
+  document.getElementById('mDates').classList.toggle('on', m==='dates');
+  document.getElementById('mTexte').classList.toggle('on', m==='texte');
+  document.getElementById('options').innerHTML = '';
+  addOpt(); addOpt();
 }
-function ajouterOpt(){
-  const i=document.createElement('input');
-  i.className='opt'; i.style.marginBottom='6px';
-  i.type = mode==='dates' ? 'datetime-local' : 'text';
-  if(mode!=='dates') i.placeholder='Option';
-  $('#opts').appendChild(i);
+
+function addOpt(){
+  const d = document.createElement('div');
+  d.className = 'opt';
+  d.innerHTML =
+    (mode==='dates'
+      ? '<input type="datetime-local" class="o">'
+      : '<input type="text" class="o" placeholder="Option">')
+    + '<button type="button" class="danger" onclick="this.parentNode.remove()">✕</button>';
+  document.getElementById('options').appendChild(d);
 }
 async function creer(){
   const val = id => {
