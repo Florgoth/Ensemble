@@ -443,13 +443,15 @@ function stats(s){
 }
 const lienVote = id => `${base()}?v=${id}`;
 function rendreResultats(){
-  const s = CUR, st = stats(s), res = analyserGagnant(s, st);
-  const P = participants(s);
-  const lienV = lienVote(s.id);
+  const s=CUR, st=stats(s), c=classer(st);
+  const P=participants(s);
+  const lienV=lienVote(s.id);
     const lienR=lienLecture(s.id);
-  app.innerHTML = `
+
+  app.innerHTML=`
   <div class="card">
-    <h2>${esc(s.title)}</h2><p class="muted">${esc(s.description || '')}</p>
+    <h2>${esc(s.title)} ${s.closed?'<span class="tag">fermé</span>':''}</h2>
+    <p class="muted">${esc(s.description||'')}</p>
     <p><b style="color:var(--rose)">${P.length}</b> réponse(s)</p>
     ${bandeauResultat(s, st, res)}
     <div class="noprint">
@@ -469,6 +471,8 @@ function rendreResultats(){
     </div>
 
     <div class="row noprint" style="margin-top:16px">
+      <button class="btnAuto sec" onclick="basculerAuto()"></button>
+      <button class="sec" onclick="rafraichir()">⟳ Actualiser maintenant</button>
       <button class="jaune" onclick="partager()">🔗 Partager les résultats</button>
       <button class="sec" onclick="window.print()">🖨 Imprimer</button>
       <button class="sec" onclick="exportCSV()">⬇ Exporter CSV</button>
