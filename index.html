@@ -128,10 +128,18 @@ const Auth = {
    Data API (PostgREST de Neon)
    anon:true  → aucun en-tête Authorization (accès invité)
    ========================================================= */
-async function api(path, {method='GET', body, anon=false, headers={}}={}){
-  const h = {'Content-Type':'application/json', ...headers};
-  if(!anon){ h['Authorization'] = 'Bearer ' + await Auth.getToken(); }
-  const r = await fetch(CONFIG.DATA_API_URL + path, {method, headers:h, body: body?JSON.stringify(body):undefined});
+async function api(path, {method='GET', body=null, anon=false} = {}){
+  const h = {'Content-Type':'application/json'};
+  if(!anon && Auth.user){
+    h['Authorization'] = 'Bearer ' + await Auth.getToken();
+  } else {
+    h['Authorization'] = 'Bearer ' + CONFIG.ANON_KEY;
+  }
+  if(method!=='GET') h['Prefer'] = 'return=representation';
+  const r = await fetch(CONFIG.DATA_API + path, {
+    method, headers: h,
+    body: body ? JSON.stringify(body) : undefined
+  });
   const txt = await r.text(); let data=null; try{ data=JSON.parse(txt); }catch{}
   if(!r.ok) throw new Error((data&&(data.message||data.hint))||('Erreur API '+r.status));
   return data;
