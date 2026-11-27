@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sondage Libre – Gratuit pour toujours</title>
+<title>ENSEMBLE – Gratuit pour toujours</title>
 <style>
   :root{
     --bg:#2b2b30; --bg2:#35353c; --bg3:#41414a;
@@ -51,6 +51,8 @@
   .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--jaune);color:#222;padding:12px 20px;border-radius:10px;font-weight:700;z-index:99}
   .toast.err{background:var(--non)}
   .authbox{max-width:420px;margin:40px auto}
+  .lienbox{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .lienbox input{flex:1;min-width:220px;font-size:.85rem}
   footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
   @media print{
     body{background:#fff;color:#000} header,.noprint,footer{display:none!important}
@@ -61,7 +63,7 @@
 </head>
 <body>
 <header>
-  <h1 onclick="goHome()">📅 Sondage Libre</h1>
+  <h1 onclick="goHome()">📅 ENSEMBLE</h1>
   <div id="userbox"></div>
 </header>
 <main id="app"></main>
@@ -84,16 +86,11 @@ function libelle(kind,label){
   if(kind!=='dates') return label;
   const d=new Date(label); return isNaN(d)?label:d.toLocaleString('fr-CA',{weekday:'long',day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
 }
+/* Normalise les anciennes/nouvelles valeurs de réponse */
+const normAns = a => (a==='peut-etre' ? 'peut' : a);
 
 /* =========================================================
    Authentification : Neon Auth (Better Auth) via REST
-   ---------------------------------------------------------
-   Better Auth expose :
-     POST {AUTH}/sign-up/email  {email,password,name}
-     POST {AUTH}/sign-in/email  {email,password}
-     GET  {AUTH}/get-session
-     POST {AUTH}/sign-out
-     GET  {AUTH}/token          → JWT pour la Data API
    ========================================================= */
 const Auth = {
   jwt: null, user: null, jwtExp: 0,
@@ -122,13 +119,14 @@ const Auth = {
     if(!force && this.jwt && Date.now() < this.jwtExp) return this.jwt;
     const t = await this.call('/token');
     this.jwt = t.token;
-    this.jwtExp = Date.now() + 10*60*1000;   // renouvelé toutes les 10 min
+    this.jwtExp = Date.now() + 10*60*1000;
     return this.jwt;
   }
 };
 
 /* =========================================================
    Data API (PostgREST de Neon)
+   anon:true  → aucun en-tête Authorization (accès invité)
    ========================================================= */
 async function api(path, {method='GET', body, anon=false, headers={}}={}){
   const h = {'Content-Type':'application/json', ...headers};
@@ -142,10 +140,12 @@ const rpc = (fn,args,anon) => api('/rpc/'+fn,{method:'POST',body:args,anon});
 
 /* =========================================================
    Routage
+   ?v=ID  → page de vote publique (sans compte)
+   ?p=ID  → résultats (créateur connecté)
    ========================================================= */
 async function route(){
   const p = new URLSearchParams(location.search);
-  if(p.get('t')) return vueInvite(p.get('t'));          // invité (sans compte)
+  if(p.get('v')) return vueVote(p.get('v'));
   await Auth.refresh();
   renderUserBox();
   if(!Auth.user) return vueConnexion();
@@ -207,7 +207,7 @@ async function vueAccueil(){
     </div>
     <div id="options"></div>
     <button type="button" class="sec" onclick="addOpt()">+ Ajouter une option</button>
-    <label>Invités (seuls eux pourront répondre)</label>
+    <label>Invités (facultatif : pour suivre qui a été invité)</label>
     <div class="row"><input id="invNew" type="text" placeholder="a@ex.com, b@ex.com" onkeydown="if(event.key==='Enter'){event.preventDefault();addInv()}">
     <button type="button" class="jaune" onclick="addInv()">Ajouter</button></div>
     <div id="invList" style="margin-top:8px"></div>
@@ -220,7 +220,7 @@ async function vueAccueil(){
     $('#mesSondages').innerHTML = '<h2>Mes sondages</h2>' + (polls.length ? polls.map(s=>`
       <div class="row" style="padding:8px 0;border-bottom:1px solid var(--bg3)">
         <div><b>${esc(s.title)}</b> ${s.closed?'<span class="tag">fermé</span>':''}
-        <div class="muted">${s.invitations.length} invité(s) · ${new Date(s.created_at).toLocaleDateString('fr-CA')}</div></div>
+        <div class="muted">${new Date(s.created_at).toLocaleDateString('fr-CA')}</div></div>
         <button class="jaune" onclick="location.search='?p=${s.id}'">Ouvrir</button>
         <button class="danger" onclick="supprimer('${s.id}')">Supprimer</button>
       </div>`).join('') : '<p class="muted">Aucun sondage pour l\'instant.</p>');
@@ -252,7 +252,6 @@ async function creer(){
   const options=[...document.querySelectorAll('.o')].map(i=>i.value.trim()).filter(Boolean);
   if(!titre||!auteur||!courriel) return toast('Titre, nom et courriel requis',true);
   if(options.length<2) return toast('Au moins 2 options',true);
-  if(!invites.length) return toast('Au moins 1 invité',true);
   const btn=$('#btnCreer'); btn.disabled=true;
   try{
     const res = await rpc('create_poll',{
@@ -285,27 +284,47 @@ async function vueResultats(id){
     CUR=s; rendreResultats();
   }catch(e){ toast(e.message,true); }
 }
+
+/* Regroupe les réponses par participant (tous les invités confondus) */
+function participants(s){
+  const map = new Map();
+  s.invitations.forEach(inv=>{
+    inv.responses.forEach(r=>{
+      const nom = (r.participant_name||'').trim() || inv.email;
+      if(!map.has(nom)) map.set(nom,{nom, rep:{}});
+      map.get(nom).rep[r.option_id] = normAns(r.answer);
+    });
+  });
+  return [...map.values()];
+}
 function stats(s){
+  const P = participants(s);
   return s.poll_options.map(o=>{
     let oui=0,peut=0,non=0;
-    s.invitations.forEach(inv=>{ const r=inv.responses.find(x=>x.option_id===o.id); if(r){ if(r.answer==='oui')oui++; else if(r.answer==='peut')peut++; else non++; }});
+    P.forEach(p=>{ const a=p.rep[o.id]; if(a==='oui')oui++; else if(a==='peut')peut++; else if(a==='non')non++; });
     return {oui,peut,non,score:oui*2+peut};
   });
 }
-function lienInvite(inv){ return `${base()}?t=${inv.token}`; }
-function aRepondu(inv){ return inv.responses.length>0; }
+function lienVote(id){ return `${base()}?v=${id}`; }
+
 function rendreResultats(){
   const s=CUR, st=stats(s), max=Math.max(0,...st.map(x=>x.score));
-  const nbRep=s.invitations.filter(aRepondu).length;
+  const P=participants(s);
   const best=st.map(x=>max>0&&x.score===max);
+  const lien=lienVote(s.id);
   app.innerHTML=`
   <div class="card">
     <h2>${esc(s.title)}</h2><p class="muted">${esc(s.description)}</p>
-    <p><b style="color:var(--rose)">${nbRep}</b> réponse(s) sur <b style="color:var(--orange)">${s.invitations.length}</b> invité(s)</p>
-    <div class="bar"><i style="width:${s.invitations.length?nbRep/s.invitations.length*100:0}%"></i></div>
+    <p><b style="color:var(--rose)">${P.length}</b> réponse(s)</p>
+    <div class="noprint">
+      <label>Lien à partager avec vos invités</label>
+      <div class="lienbox">
+        <input id="lienChamp" readonly value="${esc(lien)}" onclick="this.select()">
+        <button id="btnLien" onclick="copierLien(this)">Copier le lien</button>
+      </div>
+    </div>
     <div class="row noprint" style="margin-top:16px">
-      <button onclick="inviterTous()">✉ Inviter tout le monde</button>
-      <button class="jaune" onclick="partager()">🔗 Partager</button>
+      <button class="jaune" onclick="partager()">🔗 Partager les résultats</button>
       <button class="sec" onclick="window.print()">🖨 Imprimer</button>
       <button class="sec" onclick="exportCSV()">⬇ Exporter CSV</button>
       <button class="sec" onclick="basculerFerme()">${s.closed?'🔓 Rouvrir':'🔒 Fermer'}</button>
@@ -315,39 +334,25 @@ function rendreResultats(){
   <div class="card jaune"><h2>Tableau des réponses</h2>
     <div style="overflow-x:auto"><table>
       <tr><th>Participant</th>${s.poll_options.map((o,i)=>`<th class="${best[i]?'best':''}">${esc(libelle(s.kind,o.label))}</th>`).join('')}</tr>
-      ${s.invitations.map(inv=>{
-        const nom=inv.responses[0]?.participant_name;
-        return `<tr><td>${nom?esc(nom):'<span class="muted">'+esc(inv.email)+'</span>'}</td>
-        ${s.poll_options.map(o=>{const r=inv.responses.find(x=>x.option_id===o.id);return `<td class="${r?r.answer:'att'}">${r?VAL[r.answer]:'⏳'}</td>`}).join('')}</tr>`;
-      }).join('')}
+      ${P.length ? P.map(p=>`<tr><td>${esc(p.nom)}</td>
+        ${s.poll_options.map(o=>{const a=p.rep[o.id];return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`}).join('')}</tr>`).join('')
+        : `<tr><td colspan="${s.poll_options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
       <tr class="total"><td>Total (✔ / (✔) / ✘)</td>${st.map((x,i)=>`<td class="${best[i]?'best':''}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}</tr>
     </table></div>
     ${max>0?`<p style="margin-top:14px">🏆 Meilleure option : <b style="color:var(--rose)">${s.poll_options.filter((_,i)=>best[i]).map(o=>esc(libelle(s.kind,o.label))).join(' · ')}</b></p>`:''}
   </div>
-  <div class="card orange noprint"><h2>Invités</h2>
-    ${s.invitations.map((inv,i)=>`<div class="row" style="padding:8px 0;border-bottom:1px solid var(--bg3)">
-      <div>${esc(inv.email)} ${aRepondu(inv)?'<span class="tag" style="color:var(--ok)">a répondu</span>':'<span class="tag">en attente</span>'}</div>
-      <button class="sec" onclick="inviter(${i})">${aRepondu(inv)?'Renvoyer':'Inviter / Relancer'}</button>
-      <button class="sec" onclick="copier(lienInvite(CUR.invitations[${i}]))">Copier le lien</button>
-    </div>`).join('')}
-    <div class="row" style="margin-top:14px"><input id="nvInv" placeholder="Ajouter un invité : a@ex.com"><button class="jaune" onclick="ajouterInvite()">Ajouter</button></div>
-  </div>
   <div class="noprint"><button class="sec" onclick="goHome()">← Retour</button></div>`;
 }
-function inviter(i){
-  const s=CUR, inv=s.invitations[i];
-  const sujet=`Invitation : ${s.title}`;
-  const corps=`Bonjour,\n\n${s.creator_name} vous invite à répondre au sondage « ${s.title} ».\n${s.description?'\n'+s.description+'\n':''}\nRépondez ici (lien personnel, ne le transférez pas) :\n${lienInvite(inv)}\n\nMerci !`;
-  location.href=`mailto:${encodeURIComponent(inv.email)}?subject=${encodeURIComponent(sujet)}&body=${encodeURIComponent(corps)}`;
-}
-function inviterTous(){
-  if(!confirm(`Ouvrir ${CUR.invitations.length} courriel(s), un à la fois ?`)) return;
-  CUR.invitations.forEach((_,i)=>setTimeout(()=>inviter(i),i*1200));
-}
-async function ajouterInvite(){
-  const e=$('#nvInv').value.trim().toLowerCase();
-  if(!/^\S+@\S+\.\S+$/.test(e)) return toast('Courriel invalide',true);
-  try{ await api('/invitations',{method:'POST',body:{poll_id:CUR.id,email:e}}); vueResultats(CUR.id); }catch(err){ toast(err.message,true); }
+
+async function copierLien(bouton){
+  const lien = lienVote(CUR.id);
+  try{
+    await navigator.clipboard.writeText(lien);
+  }catch{
+    const champ=$('#lienChamp'); champ.select(); document.execCommand('copy');
+  }
+  const t=bouton.textContent; bouton.textContent='Lien copié ✓';
+  setTimeout(()=>bouton.textContent=t,2000);
 }
 async function basculerFerme(){
   try{ await api('/polls?id=eq.'+CUR.id,{method:'PATCH',body:{closed:!CUR.closed}}); vueResultats(CUR.id); }catch(e){ toast(e.message,true); }
@@ -359,38 +364,37 @@ function partager(){
 }
 function exportCSV(){
   const s=CUR, q=v=>'"'+String(v??'').replace(/"/g,'""')+'"', M={oui:'Oui',peut:'Peut-être',non:'Non'};
-  const L=[['Participant','Courriel',...s.poll_options.map(o=>libelle(s.kind,o.label))]];
-  s.invitations.forEach(inv=>L.push([inv.responses[0]?.participant_name||'',inv.email,...s.poll_options.map(o=>{const r=inv.responses.find(x=>x.option_id===o.id);return r?M[r.answer]:''})]));
+  const L=[['Participant',...s.poll_options.map(o=>libelle(s.kind,o.label))]];
+  participants(s).forEach(p=>L.push([p.nom,...s.poll_options.map(o=>M[p.rep[o.id]]||'')]));
   const st=stats(s);
-  L.push(['Total Oui','',...st.map(x=>x.oui)],['Total Peut-être','',...st.map(x=>x.peut)],['Total Non','',...st.map(x=>x.non)]);
+  L.push(['Total Oui',...st.map(x=>x.oui)],['Total Peut-être',...st.map(x=>x.peut)],['Total Non',...st.map(x=>x.non)]);
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+L.map(l=>l.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
   a.download=s.title.replace(/\W+/g,'_')+'.csv'; a.click();
 }
 
 /* =========================================================
-   Vue : invité (sans compte, via jeton secret)
+   Vue : vote public (sans compte, via le lien ?v=ID)
    ========================================================= */
-let choix={}, TOKEN='', INV=null;
-async function vueInvite(token){
-  TOKEN=token; choix={};
+let choix={}, VOTE=null;
+async function vueVote(pollId){
+  choix={};
   app.innerHTML='<div class="card"><p class="muted">Chargement…</p></div>';
   try{
-    INV = await rpc('get_invitation',{p_token:token},true);
-    if(!INV){ app.innerHTML='<div class="card"><h2>Lien invalide</h2><p class="muted">Cette invitation n\'existe pas.</p></div>'; return; }
-    Object.assign(choix, INV.my_answers||{});
+    VOTE = await rpc('get_poll_public',{p_poll_id:pollId},true);
+    if(!VOTE){ app.innerHTML='<div class="card"><h2>Lien invalide</h2><p class="muted">Ce sondage n\'existe pas.</p></div>'; return; }
     app.innerHTML=`<div class="card">
-      <h2>${esc(INV.title)}</h2><p class="muted">Organisé par ${esc(INV.creator_name)}</p>
-      ${INV.description?`<p>${esc(INV.description)}</p>`:''}
-      ${INV.closed?'<p style="color:var(--non);font-weight:700">🔒 Ce sondage est fermé.</p>':''}
-      <label>Votre nom</label><input id="rNom" value="${esc(INV.my_name||'')}" placeholder="Votre nom">
+      <h2>${esc(VOTE.title)}</h2><p class="muted">Organisé par ${esc(VOTE.creator_name)}</p>
+      ${VOTE.description?`<p>${esc(VOTE.description)}</p>`:''}
+      ${VOTE.closed?'<p style="color:var(--non);font-weight:700">🔒 Ce sondage est fermé.</p>':''}
+      <label>Votre nom</label><input id="rNom" placeholder="Votre nom" ${VOTE.closed?'disabled':''}>
       <h3>Vos disponibilités</h3>
-      <div class="choix">${INV.options.map(o=>`
-        <div class="ligne"><span>${esc(libelle(INV.kind,o.label))}</span>
+      <div class="choix">${VOTE.options.map(o=>`
+        <div class="ligne"><span>${esc(libelle(VOTE.kind,o.label))}</span>
         <div class="btns" data-id="${o.id}">
-          ${['oui','peut','non'].map(v=>`<button type="button" data-v="${v}" class="${choix[o.id]===v?'sel '+v:''}">${VAL[v]}</button>`).join('')}
+          ${['oui','peut','non'].map(v=>`<button type="button" data-v="${v}" ${VOTE.closed?'disabled':''}>${VAL[v]}</button>`).join('')}
         </div></div>`).join('')}</div>
-      ${INV.closed?'':`<button id="btnRep" style="margin-top:18px" onclick="envoyerReponse()">${INV.my_name?'Modifier ma réponse':'Envoyer ma réponse'} ➜</button>`}
+      ${VOTE.closed?'':`<button id="btnRep" style="margin-top:18px" onclick="envoyerReponse('${pollId}')">Envoyer ma réponse ➜</button>`}
     </div>`;
     document.querySelectorAll('.btns button').forEach(b=>b.onclick=()=>{
       const id=b.parentNode.dataset.id; choix[id]=b.dataset.v;
@@ -399,14 +403,15 @@ async function vueInvite(token){
     });
   }catch(e){ app.innerHTML=`<div class="card"><h2>Erreur</h2><p>${esc(e.message)}</p></div>`; }
 }
-async function envoyerReponse(){
+async function envoyerReponse(pollId){
   const nom=$('#rNom').value.trim();
   if(!nom) return toast('Entrez votre nom',true);
-  if(Object.keys(choix).length<INV.options.length) return toast('Répondez à chaque option',true);
+  if(Object.keys(choix).length<VOTE.options.length) return toast('Répondez à chaque option',true);
+  const answers = Object.entries(choix).map(([option_id,answer])=>({option_id,answer}));
   const btn=$('#btnRep'); btn.disabled=true;
   try{
-    await rpc('submit_response',{p_token:TOKEN,p_name:nom,p_answers:choix},true);
-    app.innerHTML='<div class="card"><h2>✅ Merci !</h2><p>Votre réponse a été enregistrée. Vous pouvez rouvrir ce lien pour la modifier.</p></div>';
+    await rpc('submit_response',{p_poll_id:pollId,p_name:nom,p_answers:answers},true);
+    app.innerHTML='<div class="card"><h2>✅ Merci !</h2><p>Votre réponse a été enregistrée. Pour la modifier, rouvrez le lien et utilisez le même nom.</p></div>';
   }catch(e){ toast(e.message,true); btn.disabled=false; }
 }
 
