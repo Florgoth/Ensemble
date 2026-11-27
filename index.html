@@ -66,15 +66,16 @@ td.oui{background:#2e5d34}td.peut{background:#6b5d1a}td.non{background:#6b2a2a}
  td.oui{background:#cfeccf}td.peut{background:#fff3b0}td.non{background:#f5c6c6}
 }
 
-th.gagnant,td.gagnant{background:var(--rose)!important;color:#fff!important;font-weight:800;box-shadow:inset 0 0 0 3px var(--jaune)}
-th.egalite,td.egalite{background:var(--orange)!important;color:#222!important;font-weight:800;box-shadow:inset 0 0 0 3px #222}
-.verdict{padding:14px;border-radius:10px;margin-top:14px;font-weight:700}
-.verdict.gagnant{background:var(--rose);color:#fff}
-.verdict.egalite{background:var(--orange);color:#222}
-.verdict.vide{background:var(--bg3);color:var(--muted)}
-.bandeau{ padding:12px 14px; border-radius:10px; margin:12px 0; font-weight:600; }
-.bandeau.ok{ background:rgba(123,216,143,.15); border:1px solid var(--ok); color:var(--ok); }
-.bandeau.eg{ background:rgba(255,210,63,.15); border:1px solid var(--jaune); color:var(--jaune); }
+/* Entête et total : même style que le bandeau */
+th.gagnant,td.gagnant{background:rgba(123,216,143,.15);color:var(--ok);border:1px solid var(--ok)}
+th.egalite,td.egalite{background:rgba(255,210,63,.15);color:var(--jaune);border:1px solid var(--jaune)}
+
+/* Côté créateur : légèrement plus marqué, mais sans cacher les choix */
+.emph th.gagnant,.emph td.gagnant{background:rgba(123,216,143,.25);border:2px solid var(--ok)}
+.emph th.egalite,.emph td.egalite{background:rgba(255,210,63,.25);border:2px solid var(--jaune)}
+
+/* Les cellules de réponse gardent leur couleur ✔ / ? / ✘ */
+td.oui,td.peut,td.non,td.att{background-clip:padding-box}
 
 </style>
 </head>
@@ -462,6 +463,24 @@ function stats(s){
 }
 
 const lienVote = id => `${base()}?v=${id}`;
+
+function tableauResultats(s, st, res, createur){
+  const cls = i => classeOption(i, res);
+  const entete = s.poll_options.map((o,i)=>
+  `<th class="${cls(i)}">${esc(libelle(s.kind,o.label))}</th>`).join('');
+// lignes participants : pas de classe de colonne
+const lignes = P.map(p=>`<tr><td>${esc(p.nom)}</td>${
+  s.poll_options.map(o=>{const a=p.rep[o.id];
+    return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`}).join('')
+}</tr>`).join('');
+  const total = st.map((x,i)=>
+    `<td class="${cls(i)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('');
+  return `<div class="${createur?'emph':''}" style="overflow-x:auto"><table>
+    <tr><th>Participant</th>${entete}</tr>
+    ${/* lignes des participants ici */''}
+    <tr class="total"><td>Total (✔ / ? / ✘)</td>${total}</tr>
+  </table></div>`;
+}
 
 function rendreResultats(){
   const s = CUR, st = stats(s), res = analyserGagnant(s, st);
