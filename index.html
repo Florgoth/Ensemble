@@ -4,79 +4,90 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ENSEMBLE – Sondages</title>
-<link href="https://fonts.googleapis.com/css2?
-family=Barlow+Condensed:wght@600;800
-&
-family=Barlow:wght@300;600
-&
-family=Bebas+Neue:wght@300;400
-&
-family=Oswald:wght@200
-&
-family=Economica:wght@400
-&
-display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@300;600&family=Bebas+Neue&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#1f1f24;--bg2:#2a2a31;--bg3:#3a3a44;--txt:#f2f2f2;--muted:#a8a8b3;
---rose:#c2185b;--jaune:#ffd23f;--orange:#ff8c42}
+:root{
+  --bg:#1f1f24; --bg2:#2a2a31; --bg3:#3a3a44;
+  --txt:#f2f2f2; --muted:#a8a8b3;
+  --rose:#c2185b; --jaune:#ffd23f; --orange:#ff8c42;
+  --ok:#7bd88f;
+  --oui:#2e5d34; --peut:#6b5d1a; --non:#6b2a2a;
+}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--txt)}
-h1{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:45px;margin:0 auto 0 0;color:var(--rose);letter-spacing:1.5px;line-height:1}
-header{background:var(--dark);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:6px solid;border-image:linear-gradient(90deg,var(--rose),var(--orange),var(--jaune)) 1}
-
-header h1{font-family:'Bebas Neue',sans-serif;font-weight:400;margin:0;line-height:1.1;color:var(--rose);letter-spacing:1.5px;line-height:1}
-
+h1{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:45px;margin:0;color:var(--rose);letter-spacing:1.5px;line-height:1;cursor:pointer}
+header{background:var(--bg2);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:6px solid;border-image:linear-gradient(90deg,var(--rose),var(--orange),var(--jaune)) 1}
 #userbox{display:flex;gap:10px;align-items:center;font-size:.85rem;color:var(--muted)}
-main{max-width:860px;margin:20px auto;padding:0 14px}
+main{max-width:900px;margin:20px auto;padding:0 14px}
 footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
 .card{background:var(--bg2);border-radius:12px;padding:18px;margin-bottom:16px;border-left:5px solid var(--rose)}
 .card.jaune{border-left-color:var(--jaune)}
 h2{margin:0 0 10px;color:var(--jaune)}
 label{display:block;margin:10px 0 4px;font-size:.85rem;color:var(--muted)}
-input,textarea,select{width:100%;padding:9px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--txt);font:inherit}
+input,textarea{width:100%;padding:9px;border-radius:8px;border:1px solid var(--bg3);background:var(--bg);color:var(--txt);font:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--jaune)}
 button{background:var(--rose);color:#fff;border:0;border-radius:8px;padding:9px 14px;font:inherit;cursor:pointer;font-weight:600}
+button:hover{filter:brightness(1.1)}
+button:disabled{opacity:.5;cursor:wait}
 button.jaune{background:var(--jaune);color:#222}
 button.sec{background:var(--bg3);color:var(--muted)}
-button:disabled{opacity:.5}
+button.sec.on,button.sec.jaune{color:#222}
+button.danger{background:transparent;color:#ff6b6b;border:2px solid #ff6b6b;padding:6px 10px}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .row>div{flex:1;min-width:180px}
 .boutons-duo{display:flex;gap:10px}
 .boutons-duo button{flex:1}
 .muted{color:var(--muted);font-size:.85rem}
 .tag{background:var(--orange);color:#222;border-radius:6px;padding:1px 7px;font-size:.75rem}
-table{border-collapse:collapse;width:100%}
-th,td{border:1px solid var(--bg3);padding:7px;text-align:center}
-th{background:var(--bg3)}
-th.best,td.best{outline:2px solid var(--jaune)}
-td.oui{background:#2e5d34}td.peut{background:#6b5d1a}td.non{background:#6b2a2a}
-.bar{height:8px;background:var(--bg3);border-radius:4px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--rose)}
-.choix{display:flex;gap:6px}
-.choix button{background:var(--bg3);flex:1}
-.choix button.sel.oui{background:#2e8b3d}.choix button.sel.peut{background:#c9a21a;color:#222}.choix button.sel.non{background:#b03a3a}
-.lienbox{display:flex;gap:8px}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);padding:10px 16px;border-radius:8px;display:none;z-index:9}
-#toast.err{background:#b03a3a}
 .opt{display:flex;gap:8px;align-items:center;margin-bottom:8px}
 .opt input{flex:1;min-width:0}
 .opt button{flex:0 0 auto}
+.lienbox{display:flex;gap:8px}
+.lienbox input{flex:1}
+
+/* Choix de vote */
+.choix{display:flex;gap:6px}
+.choix button{background:var(--bg3);color:var(--txt);flex:1}
+.choix button.sel.oui{background:#2e8b3d}
+.choix button.sel.peut{background:#c9a21a;color:#222}
+.choix button.sel.non{background:#b03a3a}
+
+/* Tableau des réponses : identique créateur et lecteur */
+.table-wrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{border:1px solid var(--bg3);padding:8px;text-align:center}
+th{background:var(--bg3)}
+td:first-child,th:first-child{text-align:left;font-weight:600}
+td.oui{background:var(--oui)}
+td.peut{background:var(--peut)}
+td.non{background:var(--non)}
+td.att{color:var(--muted)}
+
+/* Mise en évidence : seulement entête + total, jamais les choix */
+th.gagnant,td.gagnant{background:rgba(123,216,143,.18);color:var(--ok);box-shadow:inset 0 -3px 0 var(--ok)}
+th.egalite,td.egalite{background:rgba(255,210,63,.16);color:var(--jaune);box-shadow:inset 0 -3px 0 var(--jaune)}
+tr.total td{font-weight:800;border-top:2px solid var(--orange)}
+
+/* Bandeau unique au-dessus du tableau */
+.bandeau{padding:12px 14px;border-radius:10px;margin:12px 0;font-weight:600}
+.bandeau.ok{background:rgba(123,216,143,.15);border:1px solid var(--ok);color:var(--ok)}
+.bandeau.eg{background:rgba(255,210,63,.15);border:1px solid var(--jaune);color:var(--jaune)}
+.bandeau.vide{background:var(--bg3);color:var(--muted);border:1px solid var(--bg3)}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);padding:10px 16px;border-radius:8px;display:none;z-index:9}
+#toast.err{background:#b03a3a}
+
 @media print{
- body{background:#fff;color:#000}header,.noprint,footer{display:none!important}
- .card{background:#fff;border:1px solid #999}h2{color:#000}th{background:#eee;color:#000}
- td.oui{background:#cfeccf}td.peut{background:#fff3b0}td.non{background:#f5c6c6}
+  body{background:#fff;color:#000}
+  header,.noprint,footer{display:none!important}
+  .card{background:#fff;border:1px solid #999}
+  h2{color:#000}
+  th{background:#eee;color:#000}
+  td.oui{background:#cfeccf;color:#000}
+  td.peut{background:#fff3b0;color:#000}
+  td.non{background:#f5c6c6;color:#000}
+  th.gagnant,td.gagnant,th.egalite,td.egalite{background:#fff;color:#000}
 }
-
-/* Entête et total : même style que le bandeau */
-th.gagnant,td.gagnant{background:rgba(123,216,143,.15);color:var(--ok);border:1px solid var(--ok)}
-th.egalite,td.egalite{background:rgba(255,210,63,.15);color:var(--jaune);border:1px solid var(--jaune)}
-
-/* Côté créateur : légèrement plus marqué, mais sans cacher les choix */
-.emph th.gagnant,.emph td.gagnant{background:rgba(123,216,143,.25);border:2px solid var(--ok)}
-.emph th.egalite,.emph td.egalite{background:rgba(255,210,63,.25);border:2px solid var(--jaune)}
-
-/* Les cellules de réponse gardent leur couleur ✔ / ? / ✘ */
-td.oui,td.peut,td.non,td.att{background-clip:padding-box}
-
 </style>
 </head>
 <body>
@@ -100,41 +111,84 @@ const app = $('#app');
 const esc = s => { const d=document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 const base = () => location.origin + location.pathname;
 const VAL = {oui:'✔', peut:'?', non:'✘'};
+const lienVote = id => `${base()}?v=${id}`;
+const lienLecture = id => `${base()}?r=${id}`;
 function toast(m, err){ const t=$('#toast'); t.textContent=m; t.className=err?'err':''; t.style.display='block'; setTimeout(()=>t.style.display='none',3500); }
 function goHome(){ location.href = base(); }
 function libelle(kind, label){
   if(kind==='dates'){ const d=new Date(label); if(!isNaN(d)) return d.toLocaleString('fr-CA',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
   return label;
 }
-
-/* Analyse du classement : gagnant, égalité ou rien */
-function analyserGagnant(s, st){
-  const max = Math.max(0, ...st.map(x => x.score));
-  if(max === 0) return { type:'aucun', indices:[], max };
-  const indices = st.map((x,i) => x.score === max ? i : -1).filter(i => i >= 0);
-  return { type: indices.length === 1 ? 'gagnant' : 'egalite', indices, max };
+function copierChamp(id,btn){
+  const champ=document.getElementById(id);
+  navigator.clipboard.writeText(champ.value).catch(()=>{champ.select();document.execCommand('copy');});
+  const t=btn.textContent; btn.textContent='Copié ✓'; setTimeout(()=>btn.textContent=t,1800);
 }
 
-/* Classes CSS pour une colonne d'option */
-function classeOption(i, res){
-  if(res.type === 'gagnant' && res.indices[0] === i) return 'gagnant';
-  if(res.type === 'egalite' && res.indices.includes(i)) return 'egalite';
-  return '';
+/* ================= Analyse commune (créateur et lecteur) ================= */
+function normAns(a){ return (a==='peut-etre'||a==='peut-être') ? 'peut' : a; }
+
+/* Regroupe les réponses par participant */
+function participantsDe(options, rows){
+  // rows : [{nom, option_id, answer}]
+  const map = new Map();
+  rows.forEach(r=>{
+    if(!map.has(r.nom)) map.set(r.nom, {nom:r.nom, rep:{}});
+    map.get(r.nom).rep[r.option_id] = normAns(r.answer);
+  });
+  return [...map.values()];
 }
 
-/* Bandeau de résultat affiché au-dessus du tableau */
-function bandeauResultat(s, st, res){
-  if(res.type === 'aucun') return '<div class="bandeau">Aucun vote pour l\'instant.</div>';
-  if(res.type === 'gagnant'){
-    const o = s.poll_options[res.indices[0]];
-    return `<div class="bandeau ok">🏆 Option gagnante : <b>${esc(libelle(s.kind, o.label))}</b>
-      (${st[res.indices[0]].oui} ✔ · ${st[res.indices[0]].peut} ? · ${st[res.indices[0]].non} ✘)</div>`;
-  }
-  const noms = res.indices.map(i => esc(libelle(s.kind, s.poll_options[i].label))).join(' · ');
-  return `<div class="bandeau eg">⚖️ Égalité — résultat pas encore évident : <b>${noms}</b></div>`;
+/* Score par option : oui = 2 points, peut = 1 point */
+function statsDe(options, P){
+  return options.map(o=>{
+    let oui=0,peut=0,non=0;
+    P.forEach(p=>{
+      const a=p.rep[o.id];
+      if(a==='oui')oui++; else if(a==='peut')peut++; else if(a==='non')non++;
+    });
+    return {oui,peut,non,score:oui*2+peut};
+  });
 }
 
-/* ================= Auth (Neon Auth / Better Auth) ================= */
+/* Détermine gagnant / égalité / vide */
+function classer(st){
+  const max=Math.max(0,...st.map(x=>x.score));
+  const tops=st.map((x,i)=>max>0&&x.score===max?i:-1).filter(i=>i>=0);
+  const etat = max===0 ? 'vide' : (tops.length>1 ? 'egalite' : 'gagnant');
+  return {max,tops,etat,cls:st.map((_,i)=>tops.includes(i)?etat:'')};
+}
+
+/* Bandeau unique, utilisé par les deux vues */
+function bandeauDe(c, options, kind){
+  if(c.etat==='vide') return '<div class="bandeau vide">Aucune réponse pour l’instant.</div>';
+  const noms = c.tops.map(i=>esc(libelle(kind,options[i].label))).join(' · ');
+  if(c.etat==='gagnant') return `<div class="bandeau ok">🏆 Option gagnante : <b>${noms}</b></div>`;
+  return `<div class="bandeau eg">⚖️ Égalité, résultat pas encore évident : <b>${noms}</b></div>`;
+}
+
+/* Tableau unique, utilisé par les deux vues */
+function tableauDe(options, kind, P, st, c){
+  const entete = options.map((o,i)=>
+    `<th class="${c.cls[i]}">${esc(libelle(kind,o.label))}${c.etat==='gagnant'&&c.cls[i]?' 🏆':''}</th>`).join('');
+  const lignes = P.length ? P.map(p=>`<tr>
+      <td>${esc(p.nom)}</td>
+      ${options.map(o=>{
+        const a=p.rep[o.id];
+        return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`;
+      }).join('')}
+    </tr>`).join('')
+    : `<tr><td colspan="${options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`;
+  const total = st.map((x,i)=>
+    `<td class="${c.cls[i]}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('');
+  return `<div class="table-wrap"><table>
+    <tr><th>Participant</th>${entete}</tr>
+    ${lignes}
+    <tr class="total"><td>Total (✔ / ? / ✘)</td>${total}</tr>
+  </table></div>`;
+}
+
+/* ================= Auth ================= */
 const Auth = {
   user:null, jwt:null, jwtExp:0,
   async call(path, opts={}){
@@ -157,7 +211,6 @@ const Auth = {
   },
   async getToken(force){
     if(!force && this.jwt && Date.now() < this.jwtExp) return this.jwt;
-    // 1) JWT via /token  2) à défaut, jeton de session renvoyé par get-session
     let tok=null;
     try{ const d = await this.call('/token'); tok = d && (d.token || d.jwt); }catch{}
     if(!tok){
@@ -171,6 +224,14 @@ const Auth = {
 };
 
 /* ================= Data API ================= */
+let GUEST_JWT=null, GUEST_EXP=0;
+async function guestToken(){
+  if(GUEST_JWT && Date.now()<GUEST_EXP) return GUEST_JWT;
+  await Auth.signIn(CONFIG.INVITE_EMAIL, CONFIG.INVITE_PASSWORD).catch(()=>{});
+  const t = await Auth.getToken(true);
+  GUEST_JWT=t; GUEST_EXP=Date.now()+10*60*1000;
+  return t;
+}
 async function api(path, {method='GET', body=null, guest=false} = {}){
   const token = guest ? await guestToken() : await Auth.getToken();
   const r = await fetch(CONFIG.DATA_API_URL + path, {
@@ -184,107 +245,21 @@ async function api(path, {method='GET', body=null, guest=false} = {}){
 }
 const rpc = (fn,args,guest) => api('/rpc/'+fn,{method:'POST',body:args,guest});
 
-/* Compte invité : connexion silencieuse pour la page de vote */
-let GUEST_JWT=null, GUEST_EXP=0;
-async function guestToken(){
-  if(GUEST_JWT && Date.now()<GUEST_EXP) return GUEST_JWT;
-  await Auth.signIn(CONFIG.INVITE_EMAIL, CONFIG.INVITE_PASSWORD).catch(()=>{});
-  const t = await Auth.getToken(true);
-  GUEST_JWT=t; GUEST_EXP=Date.now()+10*60*1000;
-  return t;
-}
-
-/* ================= Rafraîchissement automatique (manuel on/off) ================= */
-const REFRESH_MS = 10000;      // 10 secondes
+/* ================= Rafraîchissement automatique ================= */
+const REFRESH_MS = 10000;
 let TIMER=null, AUTO=false, AUTO_FN=null;
-
 function arreterAuto(){ if(TIMER){ clearInterval(TIMER); TIMER=null; } }
 function appliquerAuto(){
   arreterAuto();
   if(AUTO && AUTO_FN) TIMER=setInterval(()=>{ if(!document.hidden) AUTO_FN(); }, REFRESH_MS);
   document.querySelectorAll('.btnAuto').forEach(b=>{
-    b.textContent = AUTO ? '⏸ Actualisation auto : ACTIVÉE' : '▶ Actualisation auto : désactivée';
+    b.textContent = AUTO ? '⏸ Actualisation auto : activée' : '▶ Actualisation auto : désactivée';
     b.className = 'btnAuto ' + (AUTO ? 'jaune' : 'sec');
   });
 }
 function basculerAuto(){ AUTO=!AUTO; appliquerAuto(); }
 function definirAuto(fn){ AUTO_FN=fn; appliquerAuto(); }
-
-/* ================= Résultats en lecture seule ================= */
-let LECT_ID='', LECT_WORD='';
-function vueLecture(pollId){
-  LECT_ID=pollId; arreterAuto(); AUTO_FN=null;
-  app.innerHTML=`<div class="card"><h2>Résultats du sondage</h2>
-    <label>Mot de lecture</label><input id="motL" autocomplete="off">
-    <div style="margin-top:14px"><button id="btnL" onclick="ouvrirLecture()">Voir les résultats</button></div></div>`;
-    appliquerAuto();
-}
-async function ouvrirLecture(){
-  LECT_WORD=$('#motL').value.trim();
-  if(!LECT_WORD) return toast('Entrez le mot de lecture',true);
-  try{
-    await chargerLecture();
-    definirAuto(()=>chargerLecture(true));
-  }catch(e){ toast(e.message,true); }
-}
-async function chargerLecture(silencieux){
-  try{
-    const d = await rpc('get_results_public',{p_poll_id:LECT_ID,p_word:LECT_WORD},true);
-    rendreLecture(d);
-  }catch(e){ if(!silencieux) throw e; }
-}
-function rendreLecture(d){
-  const parPers={};
-  d.responses.forEach(r=>{
-    (parPers[r.invitation_id] ||= {nom:r.participant_name,rep:{}}).rep[r.option_id]=r.answer;
-  });
-  const P=Object.values(parPers);
-
-  const st=d.options.map(o=>{
-    let oui=0,peut=0,non=0;
-    P.forEach(p=>{
-      const a=p.rep[o.id];
-      if(a==='oui')oui++; else if(a==='peut')peut++; else if(a==='non')non++;
-    });
-    return {oui,peut,non,score:oui*2+peut};
-  });
-  const c=classer(st);
-
-  app.innerHTML=`
-  <div class="card">
-    <h2>${esc(d.title)} ${d.closed?'<span class="tag">fermé</span>':''}</h2>
-    <p class="muted">${esc(d.description||'')}</p>
-    <p><b style="color:var(--rose)">${P.length}</b> réponse(s) · lecture seule</p>
-    <div class="row noprint" style="margin-top:12px">
-      <button class="btnAuto sec" onclick="basculerAuto()"></button>
-      <button class="sec" onclick="rafraichir()">⟳ Actualiser maintenant</button>
-    </div>
-  </div>
-
-  <div class="card jaune">
-    ${verdictHTML(c,d.options,d.kind)}
-    <div style="overflow-x:auto;margin-top:12px"><table>
-      <tr>
-        <th>Participant</th>
-        ${d.options.map((o,i)=>`<th class="${c.cls[i]}">${esc(libelle(d.kind,o.label))}</th>`).join('')}
-      </tr>
-      ${P.length ? P.map(p=>`<tr>
-          <td>${esc(p.nom)}</td>
-          ${d.options.map((o,i)=>{
-            const a=p.rep[o.id];
-            return `<td class="${a||'att'} ${c.cls[i]}">${a?VAL[a]:'—'}</td>`;
-          }).join('')}
-        </tr>`).join('')
-        : `<tr><td colspan="${d.options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
-      <tr class="total">
-        <td>Total (✔ / ? / ✘)</td>
-        ${st.map((x,i)=>`<td class="${c.cls[i]}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
-      </tr>
-    </table></div>
-  </div>`;
-
-  appliquerAuto();
-}
+function rafraichir(){ if(AUTO_FN) AUTO_FN(); }
 
 /* ================= Routage ================= */
 async function route(){
@@ -306,14 +281,14 @@ async function deconnexion(){ await Auth.signOut(); goHome(); }
 /* ================= Connexion ================= */
 let authMode='in';
 function vueConnexion(){
-  app.innerHTML = `<div class="card"><h2>${authMode==='in'?'CONNEXION':'Créer un compte'}</h2>
+  app.innerHTML = `<div class="card"><h2>${authMode==='in'?'Connexion':'Créer un compte'}</h2>
     <p class="muted">Pour <b>créer</b> des sondages. Les invités votent sans compte.</p>
     ${authMode==='up'?'<label>Nom</label><input id="aNom">':''}
     <label>Courriel</label><input id="aEmail" type="email" autocomplete="email">
     <label>Mot de passe</label><input id="aPass" type="password" autocomplete="current-password">
     <div class="row" style="margin-top:14px">
       <button id="aBtn" onclick="soumettreAuth()">${authMode==='in'?'Se connecter':'Créer mon compte'}</button>
-      <button class="sec" onclick="authMode=authMode==='in'?'up':'in';vueConnexion()">${authMode==='in'?'Créer un compte':'J\'ai déjà un compte'}</button>
+      <button class="sec" onclick="authMode=authMode==='in'?'up':'in';vueConnexion()">${authMode==='in'?'Créer un compte':"J'ai déjà un compte"}</button>
     </div></div>`;
 }
 async function soumettreAuth(){
@@ -326,8 +301,8 @@ async function soumettreAuth(){
   }catch(e){ toast(e.message,true); btn.disabled=false; }
 }
 
-/* ================= Accueil : création + mes sondages ================= */
-let mode='dates', invites=[];
+/* ================= Accueil : création ================= */
+let mode='dates';
 async function vueAccueil(){
   app.innerHTML = `<div class="card"><h2>Créer un sondage</h2>
     <label>Titre</label><input id="titre" placeholder="Ex. : Souper d'équipe">
@@ -339,15 +314,15 @@ async function vueAccueil(){
 
     <label>Type d'options</label>
     <div class="boutons-duo">
-  <button type="button" id="mDates" class="sec on" onclick="setMode('dates')">📅 Dates</button>
-  <button type="button" id="mTexte" class="sec" onclick="setMode('texte')">📝 Texte libre</button>
-  </div>
+      <button type="button" id="mDates" class="sec" onclick="setMode('dates')">📅 Dates</button>
+      <button type="button" id="mTexte" class="sec" onclick="setMode('texte')">📝 Texte libre</button>
+    </div>
     <div id="options" style="margin-top:8px"></div>
     <button type="button" class="jaune" onclick="addOpt()" style="margin-top:8px">+ Ajouter une option</button>
 
-    <label>Mot de passe pour Vote (pour voter)</label>
+    <label>Mot de passe pour voter</label>
     <input id="motMagique" autocomplete="off" placeholder="ex. : souper2026">
-    <label>Mot de passe pour Lecture (pour voir les résultats, sans voter)</label>
+    <label>Mot de passe pour lecture seule (voir les résultats)</label>
     <input id="motLecture" autocomplete="off" placeholder="ex. : resultats2026">
 
     <button id="btnCreer" type="button" onclick="creer()" style="margin-top:14px">Créer le sondage ➜</button>
@@ -368,12 +343,11 @@ async function vueAccueil(){
 }
 function setMode(m){
   mode = m;
-  document.getElementById('mDates').classList.toggle('on', m==='dates');
-  document.getElementById('mTexte').classList.toggle('on', m==='texte');
-  document.getElementById('options').innerHTML = '';
+  $('#mDates').classList.toggle('on', m==='dates');
+  $('#mTexte').classList.toggle('on', m==='texte');
+  $('#options').innerHTML = '';
   addOpt(); addOpt();
 }
-
 function addOpt(){
   const d = document.createElement('div');
   d.className = 'opt';
@@ -382,44 +356,37 @@ function addOpt(){
       ? '<input type="datetime-local" class="o">'
       : '<input type="text" class="o" placeholder="Option">')
     + '<button type="button" class="danger" onclick="this.parentNode.remove()">✕</button>';
-  document.getElementById('options').appendChild(d);
+  $('#options').appendChild(d);
 }
 async function creer(){
-  const val = id => {
-    const el = document.getElementById(id);
-    if(!el) throw new Error('Champ introuvable dans la page : #'+id);
-    return el.value.trim();
-  };
   try{
+    const val = id => { const el=document.getElementById(id); if(!el) throw new Error('Champ introuvable : #'+id); return el.value.trim(); };
     const titre=val('titre'), auteur=val('auteur'), courriel=val('courriel');
     const magique=val('motMagique'), lecture=val('motLecture');
-    const options=[...document.querySelectorAll('#options .opt input')]
-      .map(i=>i.value.trim()).filter(Boolean);
+    const options=[...document.querySelectorAll('#options .opt input')].map(i=>i.value.trim()).filter(Boolean);
 
     if(!titre||!auteur||!courriel) return toast('Titre, nom et courriel requis',true);
     if(options.length<2) return toast('Au moins 2 options',true);
-    if(magique.length<3) return toast('Mot magique : 3 caractères minimum',true);
-    if(lecture.length<3) return toast('Mot de lecture : 3 caractères minimum',true);
+    if(magique.length<3) return toast('Mot de passe de vote : 3 caractères minimum',true);
+    if(lecture.length<3) return toast('Mot de passe de lecture : 3 caractères minimum',true);
 
-    const btn=document.getElementById('btnCreer'); btn.disabled=true;
+    const btn=$('#btnCreer'); btn.disabled=true;
     try{
       const res = await rpc('create_poll',{
         p_title:titre, p_description:val('desc'), p_kind:mode,
         p_creator_name:auteur, p_creator_email:courriel,
-        p_options:options,
-        p_magic_word:magique, p_read_word:lecture
+        p_options:options, p_magic_word:magique, p_read_word:lecture
       });
       location.search='?p='+res.id;
     }catch(e){ toast(e.message,true); btn.disabled=false; }
   }catch(e){ toast(e.message,true); }
 }
- 
 async function supprimer(id){
   if(!confirm('Supprimer ce sondage et toutes ses réponses ?')) return;
   try{ await api('/polls?id=eq.'+id,{method:'DELETE'}); vueAccueil(); }catch(e){ toast(e.message,true); }
 }
 
-/* ================= Résultats (créateur) ================= */
+/* ================= Vue créateur ================= */
 let CUR=null;
 async function vueResultats(id, silencieux){
   if(!silencieux) app.innerHTML='<div class="card"><p class="muted">Chargement…</p></div>';
@@ -427,83 +394,39 @@ async function vueResultats(id, silencieux){
     const sel='id,title,description,kind,magic_word,read_word,closed,poll_options(id,label,position),invitations(id,email,responses(option_id,answer,participant_name))';
     const rows = await api(`/polls?id=eq.${id}&select=${encodeURIComponent(sel)}`);
     if(!rows.length){ app.innerHTML='<div class="card"><h2>Introuvable</h2><button onclick="goHome()">Retour</button></div>'; return; }
-    CUR=rows[0]; CUR.poll_options.sort((a,b)=>a.position-b.position);
+    CUR=rows[0];
+    CUR.poll_options.sort((a,b)=>a.position-b.position);
     rendreResultats();
     if(!silencieux) definirAuto(()=>vueResultats(id,true));
   }catch(e){ if(!silencieux) toast(e.message,true); }
 }
 
-function normAns(a){
-  if(a === 'peut-etre' || a === 'peut-être') return 'peut';
-  return a;
-}
-
-/* Regroupe les réponses par participant (tous les invités confondus) */
-function participants(s){
-  const map = new Map();
-  s.invitations.forEach(inv => {
-    inv.responses.forEach(r => {
-      const nom = (r.participant_name || '').trim() || inv.email;
-      if(!map.has(nom)) map.set(nom, { nom, rep: {} });
-      map.get(nom).rep[r.option_id] = normAns(r.answer);
-    });
-  });
-  return [...map.values()];
-}
-
-function stats(s){
-  return s.poll_options.map(o=>{
-    let oui=0,peut=0,non=0;
-    participants(s).forEach(p=>{
-      const a=p.rep[o.id];
-      if(a==='oui')oui++; else if(a==='peut')peut++; else if(a==='non')non++;
-    });
-    return {oui,peut,non,score:oui*2+peut};
-  });
-}
-
-const lienVote = id => `${base()}?v=${id}`;
-
-function tableauResultats(s, st, res, createur){
-  const cls = i => classeOption(i, res);
-  const entete = s.poll_options.map((o,i)=>
-  `<th class="${cls(i)}">${esc(libelle(s.kind,o.label))}</th>`).join('');
-// lignes participants : pas de classe de colonne
-const lignes = P.map(p=>`<tr><td>${esc(p.nom)}</td>${
-  s.poll_options.map(o=>{const a=p.rep[o.id];
-    return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`}).join('')
-}</tr>`).join('');
-  const total = st.map((x,i)=>
-    `<td class="${cls(i)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('');
-  return `<div class="${createur?'emph':''}" style="overflow-x:auto"><table>
-    <tr><th>Participant</th>${entete}</tr>
-    ${/* lignes des participants ici */''}
-    <tr class="total"><td>Total (✔ / ? / ✘)</td>${total}</tr>
-  </table></div>`;
-}
-
 function rendreResultats(){
-  const s = CUR, st = stats(s), res = analyserGagnant(s, st);
-  const P = participants(s);
-  const lien = lienVote(s.id);
-  const lienLect = lienLecture(s.id);
+  const s=CUR;
+  // Aplatit les réponses de tous les invités
+  const rows=[];
+  s.invitations.forEach(inv=>inv.responses.forEach(r=>{
+    rows.push({nom:(r.participant_name||'').trim()||inv.email, option_id:r.option_id, answer:r.answer});
+  }));
+  const P = participantsDe(s.poll_options, rows);
+  const st = statsDe(s.poll_options, P);
+  const c = classer(st);
 
   app.innerHTML = `
   <div class="card">
     <h2>${esc(s.title)} ${s.closed?'<span class="tag">fermé</span>':''}</h2>
-    <p class="muted">${esc(s.description || '')}</p>
+    <p class="muted">${esc(s.description||'')}</p>
     <p><b style="color:var(--rose)">${P.length}</b> réponse(s)</p>
-    ${bandeauResultat(s, st, res)}
 
     <div class="noprint">
-      <label>Lien de vote (à envoyer aux invités, mot magique requis)</label>
+      <label>Lien de vote (à envoyer aux invités, mot de passe de vote requis)</label>
       <div class="lienbox">
-        <input id="lienChamp" readonly value="${esc(lien)}" onclick="this.select()">
+        <input id="lienChamp" readonly value="${esc(lienVote(s.id))}" onclick="this.select()">
         <button class="sec" onclick="copierChamp('lienChamp',this)">Copier</button>
       </div>
-      <label>Lien de lecture seule (mot de lecture requis)</label>
+      <label>Lien de lecture seule (mot de passe de lecture requis)</label>
       <div class="lienbox">
-        <input id="lienLect" readonly value="${esc(lienLect)}" onclick="this.select()">
+        <input id="lienLect" readonly value="${esc(lienLecture(s.id))}" onclick="this.select()">
         <button class="sec" onclick="copierChamp('lienLect',this)">Copier</button>
       </div>
     </div>
@@ -518,25 +441,9 @@ function rendreResultats(){
     </div>
   </div>
 
-  <div class="card jaune"><h2>Tableau des réponses</h2>
-    <div style="overflow-x:auto"><table>
-      <tr><th>Participant</th>
-        ${s.poll_options.map((o,i)=>{
-          const c=classeOption(i,res);
-          const couronne=(res.type==='gagnant'&&res.indices[0]===i)?' 🏆':'';
-          return `<th class="${c}">${esc(libelle(s.kind,o.label))}${couronne}</th>`;
-        }).join('')}
-      </tr>
-      ${P.length ? P.map(p=>`<tr><td>${esc(p.nom)}</td>
-        ${s.poll_options.map(o=>{
-          const a=p.rep[o.id];
-          return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`;
-        }).join('')}</tr>`).join('')
-        : `<tr><td colspan="${s.poll_options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
-      <tr class="total"><td>Total (✔ / ? / ✘)</td>
-        ${st.map((x,i)=>`<td class="${classeOption(i,res)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
-      </tr>
-    </table></div>
+  <div class="card jaune">
+    ${bandeauDe(c, s.poll_options, s.kind)}
+    ${tableauDe(s.poll_options, s.kind, P, st, c)}
   </div>
 
   <div class="noprint"><button class="sec" onclick="goHome()">← Retour</button></div>`;
@@ -544,47 +451,90 @@ function rendreResultats(){
   appliquerAuto();
 }
 
-async function copierTexte(t,b){
-  try{ await navigator.clipboard.writeText(t); }catch{}
-  const x=b.textContent; b.textContent='Copié ✓'; setTimeout(()=>b.textContent=x,2000);
-}
-
-async function copierLien(b){
-  try{ await navigator.clipboard.writeText(lienVote(CUR.id)); }
-  catch{ $('#lienChamp').select(); document.execCommand('copy'); }
-  const t=b.textContent; b.textContent='Copié ✓'; setTimeout(()=>b.textContent=t,2000);
-}
 async function basculerFerme(){
   try{ await api('/polls?id=eq.'+CUR.id,{method:'PATCH',body:{closed:!CUR.closed}}); vueResultats(CUR.id); }catch(e){ toast(e.message,true); }
 }
 function partager(){
-  const txt=`${CUR.title}\nVotez ici : ${lienVote(CUR.id)}\nMot magique : ${CUR.magic_word}`;
+  const txt=`${CUR.title}\nVotez ici : ${lienVote(CUR.id)}\nMot de passe de vote : ${CUR.magic_word}`;
   if(navigator.share) navigator.share({title:CUR.title,text:txt}).catch(()=>{});
   else navigator.clipboard.writeText(txt).then(()=>toast('Message copié'));
 }
 function exportCSV(){
   const s=CUR, q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const M={oui:'Oui',peut:'Peut-être',non:'Non'};
+  const rows=[];
+  s.invitations.forEach(inv=>inv.responses.forEach(r=>{
+    rows.push({nom:(r.participant_name||'').trim()||inv.email, option_id:r.option_id, answer:r.answer});
+  }));
+  const P=participantsDe(s.poll_options, rows);
+  const st=statsDe(s.poll_options, P);
   const L=[['Participant',...s.poll_options.map(o=>libelle(s.kind,o.label))]];
-  participants(s).forEach(p=>L.push([p.nom,...s.poll_options.map(o=>M[p.rep[o.id]]||'')]));
-  const st=stats(s);
+  P.forEach(p=>L.push([p.nom,...s.poll_options.map(o=>M[p.rep[o.id]]||'')]));
   L.push(['Total Oui',...st.map(x=>x.oui)],['Total Peut-être',...st.map(x=>x.peut)],['Total Non',...st.map(x=>x.non)]);
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob(['\ufeff'+L.map(l=>l.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'}));
   a.download=s.title.replace(/\W+/g,'_')+'.csv'; a.click();
 }
 
-/* ================= Vote public (lien + mot magique) ================= */
+/* ================= Vue lecteur (lecture seule) ================= */
+let LECT_ID='', LECT_WORD='';
+function vueLecture(pollId){
+  LECT_ID=pollId; AUTO=false; AUTO_FN=null; arreterAuto();
+  app.innerHTML=`<div class="card"><h2>Résultats du sondage</h2>
+    <label>Mot de passe de lecture</label><input id="motL" autocomplete="off">
+    <div style="margin-top:14px"><button id="btnL" onclick="ouvrirLecture()">Voir les résultats</button></div></div>`;
+}
+async function ouvrirLecture(){
+  LECT_WORD=$('#motL').value.trim();
+  if(!LECT_WORD) return toast('Entrez le mot de passe de lecture',true);
+  try{
+    await chargerLecture();
+    definirAuto(()=>chargerLecture(true));
+  }catch(e){ toast(e.message,true); }
+}
+async function chargerLecture(silencieux){
+  try{
+    const d = await rpc('get_results_public',{p_poll_id:LECT_ID,p_word:LECT_WORD},true);
+    rendreLecture(d);
+  }catch(e){ if(!silencieux) throw e; }
+}
+function rendreLecture(d){
+  // d.responses : [{invitation_id, participant_name, option_id, answer}]
+  const rows=d.responses.map(r=>({nom:(r.participant_name||'').trim()||'Anonyme', option_id:r.option_id, answer:r.answer}));
+  const P = participantsDe(d.options, rows);
+  const st = statsDe(d.options, P);
+  const c = classer(st);
+
+  app.innerHTML=`
+  <div class="card">
+    <h2>${esc(d.title)} ${d.closed?'<span class="tag">fermé</span>':''}</h2>
+    <p class="muted">${esc(d.description||'')}</p>
+    <p><b style="color:var(--rose)">${P.length}</b> réponse(s) · lecture seule</p>
+    <div class="row noprint" style="margin-top:12px">
+      <button class="btnAuto sec" onclick="basculerAuto()"></button>
+      <button class="sec" onclick="rafraichir()">⟳ Actualiser maintenant</button>
+    </div>
+  </div>
+
+  <div class="card jaune">
+    ${bandeauDe(c, d.options, d.kind)}
+    ${tableauDe(d.options, d.kind, P, st, c)}
+  </div>`;
+
+  appliquerAuto();
+}
+
+/* ================= Vue vote (invités) ================= */
 let choix={}, VOTE=null, VOTE_ID='', VOTE_WORD='';
 function vueVote(pollId){
   VOTE_ID=pollId; choix={};
   app.innerHTML=`<div class="card"><h2>Accès au sondage</h2>
-    <label>Mot magique</label><input id="mot" autocomplete="off">
+    <label>Mot de passe de vote</label><input id="mot" autocomplete="off">
     <div style="margin-top:14px"><button id="btnMot" onclick="ouvrirSondage()">Entrer</button></div></div>`;
 }
 async function ouvrirSondage(){
   VOTE_WORD=$('#mot').value.trim();
-  if(!VOTE_WORD) return toast('Entrez le mot magique',true);
+  if(!VOTE_WORD) return toast('Entrez le mot de passe de vote',true);
   const btn=$('#btnMot'); btn.disabled=true;
   try{
     VOTE = await rpc('get_poll_public',{p_poll_id:VOTE_ID,p_word:VOTE_WORD},true);
@@ -621,30 +571,8 @@ async function envoyerReponse(){
     app.innerHTML='<div class="card"><h2>✅ Merci !</h2><p>Votre réponse est enregistrée.</p></div>';
   }catch(e){ toast(e.message,true); btn.disabled=false; }
 }
-function rafraichir(){ if(AUTO_FN) AUTO_FN(); }
 
-function classer(st){
-  const max=Math.max(0,...st.map(x=>x.score));
-  const tops=st.map((x,i)=>max>0&&x.score===max?i:-1).filter(i=>i>=0);
-  const etat = max===0 ? 'vide' : (tops.length>1 ? 'egalite' : 'gagnant');
-  return {max,tops,etat,cls:st.map((_,i)=>tops.includes(i)?etat:'')};
-}
-function verdictHTML(c,options,kind){
-  if(c.etat==='vide') return '<div class="verdict vide">Aucune réponse pour l’instant</div>';
-  const noms=c.tops.map(i=>esc(libelle(kind,options[i].label))).join(' · ');
-  return c.etat==='gagnant'
-    ? `<div class="verdict gagnant">🏆 Meilleure option : ${noms}</div>`
-    : `<div class="verdict egalite">⚖ Égalité, résultat pas encore clair : ${noms}</div>`;
-}
-
-function copierChamp(id,btn){
-  const champ=document.getElementById(id);
-  navigator.clipboard.writeText(champ.value).catch(()=>{champ.select();document.execCommand('copy');});
-  const t=btn.textContent; btn.textContent='Copié ✓';
-  setTimeout(()=>btn.textContent=t,1800);
-}
-function lienLecture(id){ return `${base()}?r=${id}`; }
-
+/* ================= Démarrage ================= */
 route();
 </script>
 </body>
