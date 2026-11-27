@@ -445,7 +445,7 @@ const lienVote = id => `${base()}?v=${id}`;
 function rendreResultats(){
   const s = CUR, st = stats(s), res = analyserGagnant(s, st);
   const P = participants(s);
-  const lien = lienVote(s.id);
+  const lienV = lienVote(s.id);
     const lienR=lienLecture(s.id);
   app.innerHTML = `
   <div class="card">
