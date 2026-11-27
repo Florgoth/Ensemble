@@ -67,10 +67,10 @@ td.oui{background:#2e5d34}td.peut{background:#6b5d1a}td.non{background:#6b2a2a}
 }
 
 th.gagnant,td.gagnant{background:var(--rose)!important;color:#fff!important;font-weight:800;box-shadow:inset 0 0 0 3px var(--jaune)}
-th.egalite,td.egalite{background:var(--orange)!important;color:#222!important;font-weight:800;box-shadow:inset 0 0 0 3px #fff}
+th.egalite,td.egalite{background:var(--bg3)!important;color:#222!important;font-weight:800;box-shadow:inset 0 0 0 3px #222}
 .verdict{padding:14px;border-radius:10px;margin-top:14px;font-weight:700}
 .verdict.gagnant{background:var(--rose);color:#fff}
-.verdict.egalite{background:var(--orange);color:#222}
+.verdict.egalite{background:var(--bg3);color:#222}
 .verdict.vide{background:var(--bg3);color:var(--muted)}
 .bandeau{ padding:12px 14px; border-radius:10px; margin:12px 0; font-weight:600; }
 .bandeau.ok{ background:rgba(123,216,143,.15); border:1px solid var(--ok); color:var(--ok); }
@@ -98,7 +98,7 @@ const $ = s => document.querySelector(s);
 const app = $('#app');
 const esc = s => { const d=document.createElement('div'); d.textContent = s ?? ''; return d.innerHTML; };
 const base = () => location.origin + location.pathname;
-const VAL = {oui:'✔', peut:'(✔)', non:'✘'};
+const VAL = {oui:'✔', peut:'?', non:'✘'};
 function toast(m, err){ const t=$('#toast'); t.textContent=m; t.className=err?'err':''; t.style.display='block'; setTimeout(()=>t.style.display='none',3500); }
 function goHome(){ location.href = base(); }
 function libelle(kind, label){
@@ -127,7 +127,7 @@ function bandeauResultat(s, st, res){
   if(res.type === 'gagnant'){
     const o = s.poll_options[res.indices[0]];
     return `<div class="bandeau ok">🏆 Option gagnante : <b>${esc(libelle(s.kind, o.label))}</b>
-      (${st[res.indices[0]].oui} ✔ · ${st[res.indices[0]].peut} (✔) · ${st[res.indices[0]].non} ✘)</div>`;
+      (${st[res.indices[0]].oui} ✔ · ${st[res.indices[0]].peut} ? · ${st[res.indices[0]].non} ✘)</div>`;
   }
   const noms = res.indices.map(i => esc(libelle(s.kind, s.poll_options[i].label))).join(' · ');
   return `<div class="bandeau eg">⚖️ Égalité — résultat pas encore évident : <b>${noms}</b></div>`;
@@ -276,7 +276,7 @@ function rendreLecture(d){
         </tr>`).join('')
         : `<tr><td colspan="${d.options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
       <tr class="total">
-        <td>Total (✔ / (✔) / ✘)</td>
+        <td>Total (✔ / ? / ✘)</td>
         ${st.map((x,i)=>`<td class="${c.cls[i]}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
       </tr>
     </table></div>
@@ -344,9 +344,9 @@ async function vueAccueil(){
     <div id="options" style="margin-top:8px"></div>
     <button type="button" class="jaune" onclick="addOpt()" style="margin-top:8px">+ Ajouter une option</button>
 
-    <label>Mot magique (pour voter)</label>
+    <label>Mot de passe pour Vote (pour voter)</label>
     <input id="motMagique" autocomplete="off" placeholder="ex. : souper2026">
-    <label>Mot de lecture (pour voir les résultats, sans voter)</label>
+    <label>Mot de passe pour Lecture (pour voir les résultats, sans voter)</label>
     <input id="motLecture" autocomplete="off" placeholder="ex. : resultats2026">
 
     <button id="btnCreer" type="button" onclick="creer()" style="margin-top:14px">Créer le sondage ➜</button>
@@ -514,7 +514,7 @@ function rendreResultats(){
           return `<td class="${a||'att'}">${a?VAL[a]:'—'}</td>`;
         }).join('')}</tr>`).join('')
         : `<tr><td colspan="${s.poll_options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
-      <tr class="total"><td>Total (✔ / (✔) / ✘)</td>
+      <tr class="total"><td>Total (✔ / ? / ✘)</td>
         ${st.map((x,i)=>`<td class="${classeOption(i,res)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
       </tr>
     </table></div>
@@ -580,7 +580,7 @@ function afficherVote(){
     <label>Votre nom</label><input id="rNom" ${v.closed?'disabled':''}>
     ${v.options.map(o=>`<div style="margin-top:14px"><b>${esc(libelle(v.kind,o.label))}</b>
       <div class="choix" data-o="${o.id}">
-        <button data-v="oui">✔ Oui</button><button data-v="peut">(✔) Peut-être</button><button data-v="non">✘ Non</button>
+        <button data-v="oui">✔ Oui</button><button data-v="peut">? Peut-être</button><button data-v="non">✘ Non</button>
       </div></div>`).join('')}
     ${v.closed?'':'<div style="margin-top:18px"><button id="btnRep" onclick="envoyerReponse()">Envoyer ma réponse</button></div>'}
   </div>`;
