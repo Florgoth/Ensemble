@@ -456,7 +456,15 @@ function rendreResultats(){
       <label>Lien à partager avec vos invités</label>
       <div class="lienbox">
         <input id="lienChamp" readonly value="${esc(lien)}" onclick="this.select()">
+        <button id="btnLien" onclick="copierLien(this)">Copier le lien</button>
       </div>
+    </div>
+    <div class="row noprint" style="margin-top:16px">
+      <button class="jaune" onclick="partager()">🔗 Partager les résultats</button>
+      <button class="sec" onclick="window.print()">🖨 Imprimer</button>
+      <button class="sec" onclick="exportCSV()">⬇ Exporter CSV</button>
+      <button class="sec" onclick="basculerFerme()">${s.closed ? '🔓 Rouvrir' : '🔒 Fermer'}</button>
+      <button class="sec" onclick="vueResultats('${s.id}')">⟳ Actualiser</button>
     </div>
   </div>
 
@@ -465,8 +473,8 @@ function rendreResultats(){
       <tr><th>Participant</th>
         ${s.poll_options.map((o,i) => {
           const c = classeOption(i, res);
-          const couronne = (res.type==='gagnant' && res.indices[0]===i) ? ' 🏆' : '';
-          return `<th class="${c}">${esc(libelle(s.kind,o.label))}${couronne}</th>`;
+          const couronne = (res.type === 'gagnant' && res.indices[0] === i) ? ' 🏆' : '';
+          return `<th class="${c}">${esc(libelle(s.kind, o.label))}${couronne}</th>`;
         }).join('')}
       </tr>
       ${P.length ? P.map(p => `<tr><td>${esc(p.nom)}</td>
@@ -474,15 +482,16 @@ function rendreResultats(){
           const a = p.rep[o.id];
           return `<td class="${a || 'att'}">${a ? VAL[a] : '—'}</td>`;
         }).join('')}</tr>`).join('')
-        : `<tr><td colspan="${s.poll_options.length+1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
-      <tr class="total"><td class="${res.type==='egalite'?'egalite-titre':''}">Total (✔ / (✔) / ✘)</td>
-        ${st.map((x,i) => `<td class="${classeOption(i,res)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
+        : `<tr><td colspan="${s.poll_options.length + 1}" class="muted">Aucune réponse pour l'instant.</td></tr>`}
+      <tr class="total"><td class="${res.type === 'egalite' ? 'egalite-titre' : ''}">Total (✔ / (✔) / ✘)</td>
+        ${st.map((x,i) => `<td class="${classeOption(i, res)}">${x.oui} / ${x.peut} / ${x.non}</td>`).join('')}
       </tr>
     </table></div>
   </div>
+
   <div class="noprint"><button class="sec" onclick="goHome()">← Retour</button></div>`;
 
-   appliquerAuto();
+  appliquerAuto();
 }
 
 async function copierTexte(t,b){
